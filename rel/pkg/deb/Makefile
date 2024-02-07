@@ -16,6 +16,7 @@ default:
 	dch  --create --package riak -v "$(PKG_VERSION)" \
              "Build from $(PKG_ID)";\
 	debuild --prepend-path=$(ERLANG_BIN) \
+	        --no-lintian \
 			-e REVISION=$(PKG_VERSION) \
 			-e RELEASE=$(PKG_BUILD) \
 		-i -uc -us -b
