@@ -241,8 +241,7 @@ PKG_ID := "$(REPO_TAG)-OTP$(OTP_VER)"
 # which differs from $REVISION that is repo-<commitcount>-<commitsha>
 PKG_VERSION = $(shell echo $(PKG_ID) | sed -e 's/^$(REPO)-//')
 
-package:
-	compile
+package: compile
 	mkdir -p rel/pkg/out/$(PKG_ID)
 	git archive --format=tar HEAD | gzip >rel/pkg/out/$(PKG_ID).tar.gz
 	$(MAKE) -f rel/pkg/Makefile
