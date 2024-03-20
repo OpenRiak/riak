@@ -130,7 +130,7 @@
     Setting = cuttlefish:conf_get("erlang.vm.ignore_break_signal", Conf),
     case Setting of
       true -> "i";
-      false -> "c"
+      false -> cuttlefish:unset()
     end
   end
 }.
