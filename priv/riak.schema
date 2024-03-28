@@ -118,10 +118,22 @@
 ]}.
 
 %% VM emulator ignore break signal (prevent ^C / ^Gq)
-{mapping, "erlang.vm.ignore_break_signal", "vm_args.+Bi", [
-  {default, "true"},
+{mapping, "erlang.vm.ignore_break_signal", "vm_args.+B", [
+  {default, true},
+  {datatype, {enum, [true, false]}},
   merge
 ]}.
+
+{translation,
+  "vm_args.+B",
+  fun(Conf) ->
+    Setting = cuttlefish:conf_get("erlang.vm.ignore_break_signal", Conf),
+    case Setting of
+      true -> "i";
+      false -> cuttlefish:unset()
+    end
+  end
+}.
 
 %% @doc The VM single block carrier threshold (KB) for process heap
 {mapping, "erlang.eheap_memory.sbct", "vm_args.+MHsbct", [

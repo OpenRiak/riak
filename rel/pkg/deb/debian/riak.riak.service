@@ -9,6 +9,7 @@ Type=simple
 PIDFile=/run/riak/riak.pid
 EnvironmentFile=-/etc/default/riak
 RuntimeDirectory=riak
+LimitNOFILE=524288
 
 [Install]
 WantedBy=multi-user.target
