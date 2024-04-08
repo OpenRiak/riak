@@ -117,7 +117,7 @@
   merge
 ]}.
 
-%% VM emulator ignore break signal (prevent ^C / ^Gq)
+%% @doc VM emulator ignore break signal (prevent ^C / ^Gq)
 {mapping, "erlang.vm.ignore_break_signal", "vm_args.+B", [
   {default, true},
   {datatype, {enum, [true, false]}},
@@ -131,6 +131,50 @@
     case Setting of
       true -> "i";
       false -> cuttlefish:unset()
+    end
+  end
+}.
+
+%% @doc Default binary virtual heap size (words)
+%% The default value in OTP 24 is 32768.  Default is value VH_DEFAULT_SIZE in:
+%% https://github.com/erlang/otp/blob/master/erts/emulator/beam/erl_vm.h
+%% Setting to otp will use default in OTP.  Some performance improvements may
+%% be seen with leveled by increasing this to 131072.
+{mapping, "erlang.virtual_heap.hmbs", "vm_args.+hmbs", [
+  {default, otp},
+  {datatype, [{atom, otp}, integer]},
+  merge
+]}.
+
+{translation,
+  "vm_args.+hmbs",
+  fun(Conf) ->
+    Setting = cuttlefish:conf_get("erlang.virtual_heap.hmbs", Conf),
+    case Setting of
+      Setting when is_integer(Setting) -> Setting;
+      otp -> cuttlefish:unset()
+    end
+  end
+}.
+
+%% @doc Default virtual heap size (words)
+%% The default value in OTP 24 is 233.  Default is value H_DEFAULT_SIZE in:
+%% https://github.com/erlang/otp/blob/master/erts/emulator/beam/erl_vm.h
+%% Setting to otp will use default in OTP.  The default is a number in the
+%% Fibonacci sequence
+{mapping, "erlang.virtual_heap.hms", "vm_args.+hms", [
+  {default, otp},
+  {datatype, [{atom, otp}, integer]},
+  merge
+]}.
+
+{translation,
+  "vm_args.+hms",
+  fun(Conf) ->
+    Setting = cuttlefish:conf_get("erlang.virtual_heap.hms", Conf),
+    case Setting of
+      Setting when is_integer(Setting) -> Setting;
+      otp -> cuttlefish:unset()
     end
   end
 }.
