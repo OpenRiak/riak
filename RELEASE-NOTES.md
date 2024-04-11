@@ -4,9 +4,9 @@ This brings the Riak 3.2 branch in-line with the latest Riak KV 3.0 NHS release 
 
 The primary changes are:
 
-- Support for both [zstd compression](https://github.com/nhs-riak/leveled/pull/5) and [no compression](https://github.com/nhs-riak/leveled/pull/3) in the leveled backend.
+- Support for both [zstd compression](https://github.com/martinsumner/leveled/pull/430) and [no compression](https://github.com/martinsumner/leveled/pull/417) in the leveled backend.
 - Tidy up the [closing of processes within leveled](https://github.com/nhs-riak/leveled/pull/4).
-- [Improvements to the CPU efficiency](https://github.com/nhs-riak/leveled/pull/5) of leveled, specificaly when handling secondary index queries and aae folds.
+- [Improvements to the CPU efficiency](https://github.com/martinsumner/leveled/pull/428) of leveled, specificaly when handling secondary index queries and aae folds.
 - Upgrade the [json library used in producing 2i query results](https://github.com/nhs-riak/riak_kv/pull/20) to the [library scheduled for inclusion in OTP 27](https://github.com/erlang/otp/pull/8111).
 - Add [data size estimation to the riak_kv_leveled_backend](https://github.com/nhs-riak/riak_kv/pull/18) to allow for progress reporting on transfers.
 - Prevent the [start of replication processes before riak_kv startup has completed](https://github.com/nhs-riak/riak_kv/pull/23).
