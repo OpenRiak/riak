@@ -1,6 +1,20 @@
-# Riak KV 3.2.1 Release Notes
+# Riak KV 3.2.1-nhse Release Notes
 
-Release of Riak KV 3.2, with the addition of changes made in [Riak KV 3.0.13](#riak-kv-3013-release-notes) and [Riak KV 3.0.14](#riak-kv-3014-release-notes).
+This brings the Riak 3.2 branch in-line with the latest Riak KV 3.0 NHS release [3.0.18-nhse](https://github.com/nhs-riak/riak/releases/tag/riak-3.0.18-nhse), and also includes a number of uplifts to the Tictac AAE replication ecosystem.
+
+The primary changes are:
+
+- Support for both [zstd compression](https://github.com/martinsumner/leveled/pull/430) and [no compression](https://github.com/martinsumner/leveled/pull/417) in the leveled backend.
+- Tidy up the [closing of processes within leveled](https://github.com/nhs-riak/leveled/pull/4).
+- [Improvements to the CPU efficiency](https://github.com/martinsumner/leveled/pull/428) of leveled, specificaly when handling secondary index queries and aae folds.
+- Upgrade the [json library used in producing 2i query results](https://github.com/nhs-riak/riak_kv/pull/20) to the [library scheduled for inclusion in OTP 27](https://github.com/erlang/otp/pull/8111).
+- Add [data size estimation to the riak_kv_leveled_backend](https://github.com/nhs-riak/riak_kv/pull/18) to allow for progress reporting on transfers.
+- Prevent the [start of replication processes before riak_kv startup has completed](https://github.com/nhs-riak/riak_kv/pull/23).
+- [Improve repair-mode efficiency](https://github.com/nhs-riak/riak_kv/pull/26), so that each vnode is only repaired once, significantly reducing the cluster-wide overhead of entering repair mode (for AAE based full-sync).
+- Prevent a [potential race condition whereby a queued tree rebuild may lead to an incorrect segment](https://github.com/nhs-riak/riak_kv/pull/27) in a cached tree.
+- Revert to [a version of eleveldb based on the 3.0 path](https://github.com/nhs-riak/riak_core/pull/9), whereby the version of snappy is specifically referenced rather than depending on the OS-supported version.
+- Improve the [monitoring of the node worker pools](https://github.com/nhs-riak/riak_core/pull/7).
+- Minor fixes to [build and packaging](https://github.com/nhs-riak/riak/pull/2), as well as addition of [further VM configuration options](https://github.com/nhs-riak/riak/pull/4).
 
 # Riak KV 3.2.0 Release Notes
 
