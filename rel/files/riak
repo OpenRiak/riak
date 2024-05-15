@@ -27,7 +27,7 @@ fi
 
 function maybe_su {
     if [[ $EUID -ne 0 ]]; then
-        $*
+        "$@"
     else
 	# if we are executing an admin command that spins up a
 	# (hidden) node to then execute custom erlang code via -eval,
@@ -42,7 +42,7 @@ function maybe_su {
 	f=`mktemp "$RUNNER_GEN_DIR"/su_piggy-XXXXXXX`
 	cat >"$f" <<EOF
 #!/bin/sh
-$*
+"$@"
 EOF
 	chmod +x "$f"
 	chown riak:riak "$f"
@@ -53,13 +53,13 @@ EOF
 
 case "$1" in
     stop)
-        maybe_su $RELX_RIAK $* \
+        maybe_su $RELX_RIAK "$@" \
 	    && rm -f $PID_DIR/riak.pid  ## relx-generated script doesn't remove it
 	;;
     *)
 
 	# what is this for?
         #ESCAPED_ARGS=`echo "$@" | sed -e 's/\([\\\(\\\){}"\x27]\)/\\\\\1/g'`
-        maybe_su $RELX_RIAK $*
+        maybe_su $RELX_RIAK "$@"
         ;;
 esac
