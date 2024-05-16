@@ -116,7 +116,7 @@
   2},
  {<<"riak_kv">>,
   {git,"https://github.com/nhs-riak/riak_kv",
-       {ref,"63d9913456de0861322802ef70ff93ca14b71817"}},
+       {ref,"9e20474eb6fb9faca4d22ae7e9c19c39e1a32fc2"}},
   0},
  {<<"riak_pb">>,
   {git,"https://github.com/nhs-riak/riak_pb.git",
