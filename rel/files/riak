@@ -43,7 +43,7 @@ function maybe_su {
         if `grep BSD /etc/os-release` ; then
             su_bsd "$@"
         else
-            sudo -E -u riak -- "$@"
+            sudo -H -E -u riak -- "$@"
         fi
     fi
 }
