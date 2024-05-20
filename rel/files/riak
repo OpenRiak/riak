@@ -17,38 +17,35 @@ if [ ! -r  "$VMARGS_PATH" ]; then
 fi
 export VMARGS_PATH
 
-# centos7-based distros have a su that contacts pam and prints the "Last logged in" message
-if [ "`cat /etc/redhat-release 2>&1`" = "CentOS Stream release 7" ] ||
-   [ "`cat /etc/system-release 2>&1`" = "Amazon Linux release 2 (Karoo)" ]; then
-    COPTION="--session-command"
-else
-    COPTION="-c"
-fi
-
-function maybe_su {
-    if [[ $EUID -ne 0 ]]; then
-        "$@"
-    else
-	# if we are executing an admin command that spins up a
-	# (hidden) node to then execute custom erlang code via -eval,
-	# we need to cd to a dir containing the erlang cookie
-	# (previously implicitly done by su -, which option we have
-	# removed in order to allow any env vars to be available for
-	# the ultimate invocation of riak/riak-cs/stanchion)
-	cd "{{platform_base_dir}}"
-	# freebsd su is fairly limited, so:
+function su_bsd {
+	# bsd su is fairly limited, so:
 	mkdir -p "$RUNNER_GEN_DIR"
 	chown riak:riak "$RUNNER_GEN_DIR"
 	f=`mktemp "$RUNNER_GEN_DIR"/su_piggy-XXXXXXX`
 	cat >"$f" <<EOF
 #!/bin/sh
-"$@"
+$*
 EOF
 	chmod +x "$f"
 	chown riak:riak "$f"
-	su riak $COPTION "$f"
+	su riak -c "$f"
 	rm -f "$f"
-   fi
+}
+
+function maybe_su {
+    if [[ $EUID -ne 0 ]]; then
+        "$@"
+    else
+        # if we are executing an admin command that spins up a
+        # (hidden) node to then execute custom erlang code via -eval,
+        # we need to cd to a dir containing the erlang cookie
+        cd "{{platform_base_dir}}"
+        if `grep BSD /etc/os-release` ; then
+            su_bsd "$@"
+        else
+            sudo -E -u riak -- "$@"
+        fi
+    fi
 }
 
 case "$1" in
@@ -57,9 +54,6 @@ case "$1" in
 	    && rm -f $PID_DIR/riak.pid  ## relx-generated script doesn't remove it
 	;;
     *)
-
-	# what is this for?
-        #ESCAPED_ARGS=`echo "$@" | sed -e 's/\([\\\(\\\){}"\x27]\)/\\\\\1/g'`
         maybe_su $RELX_RIAK "$@"
         ;;
 esac
