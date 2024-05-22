@@ -1,3 +1,7 @@
+# Riak KV 3.2.2-nhse Release Notes
+
+This release updates 3.2.1 to resolve an issue with handling of spaces in Riak commands (e.g. within JSON-based definitions of bucket properties, or `riak eval` statements).
+
 # Riak KV 3.2.1-nhse Release Notes
 
 This brings the Riak 3.2 branch in-line with the latest Riak KV 3.0 NHS release [3.0.18-nhse](https://github.com/nhs-riak/riak/releases/tag/riak-3.0.18-nhse), and also includes a number of uplifts to the Tictac AAE replication ecosystem.
