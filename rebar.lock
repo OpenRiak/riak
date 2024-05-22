@@ -96,7 +96,7 @@
   1},
  {<<"riak_api">>,
   {git,"https://github.com/nhs-riak/riak_api.git",
-       {ref,"a962705ae6b594e1fefc9dc8874d3d6d5d3d391f"}},
+       {ref,"d5cbd9a91965165ea4e353798a610f9aa82578c4"}},
   1},
  {<<"riak_auth_mods">>,
   {git,"https://github.com/nhs-riak/riak_auth_mods",
