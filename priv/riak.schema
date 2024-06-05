@@ -67,6 +67,16 @@
   end
 }.
 
+%% @doc prevenet overlapping partitions
+%% Riak is designed to continue to run even in the presence of partitions
+%% In OTP 26, the default behaviour of the erlang has changed to prevent
+%% overlapping partitions.  To re-enable the previous behaviour, set this
+%% to off
+{mapping, "prevent_overlapping_partitions", "kernel.prevent_overlapping_partitions", [
+  {default, off},
+  {datatype, flag}
+]}.
+
 %% @doc Cookie for distributed node communication.  All nodes in the
 %% same cluster should use the same cookie or they will not be able to
 %% communicate.
