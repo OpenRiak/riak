@@ -1,3 +1,7 @@
+# Riak KV 3.2.2p1-nhse Release Notes
+
+This minor patch release updates 3.2.2 to resolve an issue with binary memory management when using nextgenrepl to replicate objects with keys bigger than 64 bytes to clusters using the leveled backend.  Some utility functions have been added to riak_kv_utils, that were helpful in investigating this issue.
+
 # Riak KV 3.2.2-nhse Release Notes
 
 This release updates 3.2.1 to resolve an issue with handling of spaces in Riak commands (e.g. within JSON-based definitions of bucket properties, or `riak eval` statements).
