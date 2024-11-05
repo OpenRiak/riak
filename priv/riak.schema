@@ -6,18 +6,75 @@
   {datatype, {enum, [debug, info, notice, warning, error, critical, alert, emergency, none]}}
 ]}.
 
-%% @doc Format string for the messages emitted to default log. The string is passed into
-%% the handler as a logger_formatter template, the format is a list containing strings
-%% and atoms. The atoms denote the keys for retrieving metadata from the logger events.
-%% More information on default metadata can be found here (https://www.erlang.org/doc/man/logger_formatter.html#type-template).
-{mapping, "logger.format", "kernel.logger", [
-  {default, "[time,\" [\",level,\"] \",pid,\"@\",mfa,\":\",line,\" \",msg,\"\\n\"]."}
-]}.
-
-%% @doc Filename to use for log files.
+%% @doc Filename to use for console log files.
 {mapping, "logger.file", "kernel.logger", [
   {default, "$(platform_log_dir)/console.log"},
   {datatype, file}
+]}.
+
+%% @doc Filename to use for error log files.
+{mapping, "error.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/error.log"},
+  {datatype, file}
+]}.
+
+%% @doc Filename to use for crash log files.
+{mapping, "crash.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/crash.log"},
+  {datatype, file}
+]}.
+
+%% @doc Filename to use for crash log files.
+{mapping, "report.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/report.log"},
+  {datatype, file}
+]}.
+
+%% @doc Filename to use for backend console log files.  Currently this applies
+%% only to the leveled backend, which has relatively verbose logging at info
+%% level.
+{mapping, "backend.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/backend.log"},
+  {datatype, file}
+]}.
+
+%% @doc Filename to use for tictac aae console log files.  The aae exchanges
+%% have relatively verbose logging even at info level, so this allows them to
+%% be diverted to an alternative file
+{mapping, "tictacaae.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/tictacaae.log"},
+  {datatype, file}
+]}.
+
+%% @doc Filename to use for metric logs - recurring logs within riak used to
+%% output metrics
+{mapping, "metric.file", "kernel.logger", [
+  {default, "$(platform_log_dir)/metric.log"},
+  {datatype, file}
+]}.
+
+%% @doc backend logs routing policy.  What should the policy be for (leveled)
+%% backend logs - divert (log instead to the backend.file), local (log to the
+%% normal console log file) or ignore (do not log at all)
+{mapping, "backend.policy", "kernel.logger", [
+  {default, divert},
+  {datatype, {enum, [divert, local, ignore]}}
+]}.
+
+%% @doc tictac aae logs routing policy.  What should the policy be for tictac
+%% aae logs - divert (log instead to the tictacaae.file), local (log to the
+%% normal console log file) or ignore (do not log at all)
+{mapping, "tictacaae.policy", "kernel.logger", [
+  {default, divert},
+  {datatype, {enum, [divert, local, ignore]}}
+]}.
+
+%% @doc metric logs routing policy.  What should the policy be for metric logs
+%% - divert (log instead to the metrics.file), local (log to the normal console
+%% log file) or ignore (do not log at all)
+{mapping, "metric.policy", "kernel.logger", [
+  {default, divert},
+  {datatype, {enum, [divert, local, ignore]}}
 ]}.
 
 %% @doc With log rotation enabled, this decides the maximum number of log 
@@ -35,35 +92,9 @@
 ]}.
 
 {translation,
- "kernel.logger",
- fun(Conf) ->
-    LogFile = cuttlefish:conf_get("logger.file", Conf),
-    MaxNumBytes = cuttlefish:conf_get("logger.max_file_size", Conf),
-    MaxNumFiles = cuttlefish:conf_get("logger.max_files", Conf),
-
-    DefaultFormatStr = cuttlefish:conf_get("logger.format", Conf),
-    DefaultFormatTerm =
-        case erl_scan:string(DefaultFormatStr) of
-            {ok, DefaultTokens, _} ->
-                case erl_parse:parse_term(DefaultTokens) of
-                    {ok, DefaultTerm} ->
-                        DefaultTerm;
-                    {error, {_, _, DefaultError}} ->
-                        cuttlefish:error(foo)
-                end;
-            {error, {_, _, DefaultScanError}} ->
-                cuttlefish:error(foo)
-        end,
-    ConfigMap0 = #{config => #{file => LogFile,
-                              max_no_bytes => MaxNumBytes,
-                              max_no_files => MaxNumFiles},
-                  formatter => {logger_formatter, 
-                                    #{template => DefaultFormatTerm}
-                               }
-                 },
-
-    [{handler, default, logger_std_h, ConfigMap0}]
-    
+  "kernel.logger",
+  fun(Conf) ->
+    riak_logger:riak_handler_generator(Conf, fun cuttlefish:conf_get/2)
   end
 }.
 
