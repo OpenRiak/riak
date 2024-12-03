@@ -1,19 +1,39 @@
 # Riak - a distributed, decentralised data storage system.
 
+## Build Status
+
 ![Riak Core OpenRiak Status](https://github.com/OpenRiak/riak_core/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2)
 ![Riak KV OpenRiak Status](https://github.com/OpenRiak/riak_kv/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2)
 ![Riak Repl OpenRiak Status](https://github.com/OpenRiak/riak_repl/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2)
 
-To build riak, Erlang OTP 22 or higher is required.
+## Why Riak?
 
-`make rel` will build a release which can be run via `rel/riak/bin/riak start`.  Riak is primarily configured via `rel/riak/etc/riak.conf`
+Riak is a distributed key-value store, designed to provide high-availability with predictable response times in the presence of complex failure scenarios. It can provide reliable guarantees against data loss, even where individual nodes have ephemeral storage, and groups of nodes can be concurrently impacted by failure events. It is a reliable system whilst running on simple, low-cost, commodity components - remaining highly available without the need for urgent operator intervention.
+
+Riak is commonly used as a schema-free database for the storage and indexing of records, documents, objects or binaries with minimal constraints imposed by the database. In functional terms, Riak can be considered to be a hybrid combination of some of the features available within S3 and DynamoDB.
+
+Riak is targeted at multi-cluster environments, where open replication is possible not just between Riak clusters, but between Riak clusters and other database services. With Riak, reconciliation is considered as important as replication. Clusters may come in different shapes and sizes - but it is important that as well as replicating data between clusters, it is possible to do rapid and continuous verification that clusters remain synchronised.
+
+Riak users have been running large-scale production databases in safety-critical environments on commodity hardware with more than a decade of continuous uptime. These environments are noted not just for their high availability, but for their low operator-intervention rates. Riak is often preferred in organisations where technology choices need to be long-lasting, and ongoing operational costs are a more important consideration than up-front developer costs.
+
+Riak is built almost entirely using BEAM technology, a platform designed from the start to support the next generation of reliable systems. Over the past few years Riak has been evolved to make better use of the BEAM platform, and is now supported on an ongoing basis by a Working Group of the Erlang Ecosystem Foundation.
+
+## Getting Started
+
+To build Riak, Erlang OTP 24 is preferred.
+
+`make rel` will build a release which can be run via `rel/riak/bin/riak daemon`.  Riak is primarily configured via `rel/riak/etc/riak.conf`
 
 To make a package, install appropriate build tools for your operating system and run `make package`.
 
 To create a local multi-node build environment use `make devclean; make devrel`.
 
-To test Riak use [Riak Test](https://github.com/basho/riak_test/blob/develop-3.0/doc/SIMPLE_SETUP.md).
+To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test).
 
-Up to date documentation is not available, but work on [documentation](https://www.tiot.jp/riak-docs/riak/kv/3.2.0/) is ongoing and the core information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html) is still generally relevant.
+There is some historic information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html).  Work on re-freshing the documentation is ongoing, and in the interim further documentation is available via Riak support organisations, or in the doc folders of the riak_kv and riak_core repositories.
 
-Issues and PRs can be tracked via [Riak Github](https://github.com/basho/riak/issues) or [Riak KV Github](https://github.com/basho/riak_kv/issues).
+Issues and PRs can be tracked via [Riak Github](https://github.com/OpenRiak/riak/issues) or [Riak KV Github](https://github.com/OpenRiak/riak_kv/issues).
+
+Discussions on the ongoing development of the OpenRiak version of Riak KV [can be found on Github](https://github.com/orgs/OpenRiak/discussions).
+
+The OpenRiak community is supported by [the Erlang Ecosystem Foundation](https://erlef.org/).
