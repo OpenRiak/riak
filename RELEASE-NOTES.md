@@ -1,3 +1,17 @@
+# Riak KV 3.2.3 Release Notes
+
+Some minor fixes and enhancements:
+
+- Fix an issue with [the `riak admin services` command](https://github.com/OpenRiak/riak/issues/8).
+- Fix [a potential cause of stalling in leveled](https://github.com/martinsumner/leveled/issues/459); this is of particular relevance for larger stores (by key count) i.e. >> 1m object keys per vnode.
+- Add the ability to [change compression method in parallel-mode Tictac AAE stores](https://github.com/martinsumner/kv_index_tictactree/issues/120), which adds [extra configuration controls to AAE in general](https://github.com/OpenRiak/riak_kv/pull/48).
+
+The preferred OTP version for this release is OTP 24, and the current plan is to increment 2 major OTP versions every minor version release (so Riak KV 3.4.0 will prefer OTP 26).
+
+# Riak KV 3.2.2p1-nhse Release Notes
+
+This minor patch release updates 3.2.2 to resolve an issue with binary memory management when using nextgenrepl to replicate objects with keys bigger than 64 bytes to clusters using the leveled backend.  Some utility functions have been added to riak_kv_utils, that were helpful in investigating this issue.
+
 # Riak KV 3.2.2-nhse Release Notes
 
 This release updates 3.2.1 to resolve an issue with handling of spaces in Riak commands (e.g. within JSON-based definitions of bucket properties, or `riak eval` statements).
