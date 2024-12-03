@@ -91,10 +91,36 @@
   {datatype, bytesize}
 ]}.
 
+%% @doc Format string for the messages emitted to default log. The string is
+%% passed into the handler as a logger_formatter template, the format is a list
+%% containing strings and atoms. The atoms denote the keys for retrieving
+%% metadata from the logger events.
+%% More information on default metadata can be found here
+%% https://www.erlang.org/doc/man/logger_formatter.html#type-template.
+{mapping, "logger.format", "kernel.logger", [
+  {default, "[time,\" [\",level,\"] \",pid,\"@\",mfa,\":\",line,\" \",msg,\"\\n\"]."}
+]}.
+
+%% @doc Configuration function
+%% Different logger configurations can be achieved by passing the configuration
+%% here into functions in the riak_logger application (riak_lgger_config
+%% module).
+%% The default is o34std.  For backwards compatibility with openriak 3.2
+%% releases use 032std.
+{mapping, "logger.config_function", "kernel.logger", [
+  {default, o34std},
+  {datatype, {enum, [o32std, o34std]}}
+]}.
+
 {translation,
   "kernel.logger",
   fun(Conf) ->
-    riak_logger:riak_handler_generator(Conf, fun cuttlefish:conf_get/2)
+    case cuttlefish:conf_get("logger.config_function", Conf) of
+      o32std ->
+        riak_logger_config:o32std_generator(Conf, fun cuttlefish:conf_get/2);
+      o34std ->
+        riak_logger_config:o34std_generator(Conf, fun cuttlefish:conf_get/2)
+    end
   end
 }.
 
