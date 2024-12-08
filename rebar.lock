@@ -142,7 +142,7 @@
   1},
  {<<"sidejob">>,
   {git,"https://github.com/OpenRiak/sidejob.git",
-       {ref,"b1cd6cac253f294e71cf1bdc042bf216441de3c7"}},
+       {ref,"26ec7d63f84c45ce7759b9fd85b4ad38b5b03519"}},
   1},
  {<<"webmachine">>,
   {git,"https://github.com/OpenRiak/webmachine.git",
