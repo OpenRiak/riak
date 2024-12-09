@@ -36,7 +36,7 @@ To create a local multi-node build environment use `make devclean; make devrel`.
 
 To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test).
 
-There is some historic information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html).  Work on re-freshing the documentation is ongoing, and in the interim further documentation is available via Riak support organisations, or in the doc folders of the riak_kv and riak_core repositories.
+There is some historic information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html).  Work on refreshing the documentation is ongoing, and in the interim further documentation is available via Riak support organisations, or in the doc folders of the riak_kv and riak_core repositories.
 
 Issues and PRs can be tracked via [Riak Github](https://github.com/OpenRiak/riak/issues) or [Riak KV Github](https://github.com/OpenRiak/riak_kv/issues).
 
