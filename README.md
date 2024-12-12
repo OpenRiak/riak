@@ -4,13 +4,13 @@
 
 | Component  |     Status      |
 |:----------|:-------------:|
-| riak_core |  ![Riak Core OpenRiak Status](https://github.com/OpenRiak/riak_core/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
-| riak_kv |    ![Riak KV OpenRiak Status](https://github.com/OpenRiak/riak_kv/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2)  |
-| riak_repl | ![Riak Repl OpenRiak Status](https://github.com/OpenRiak/riak_repl/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
-| riak_pipe | ![Riak Pipe OpenRiak Status](https://github.com/OpenRiak/riak_pipe/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
-| leveled | ![Leveled OpenRiak Status](https://github.com/OpenRiak/leveled/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
-| kv_index_tictactree | ![Tictac Tree OpenRiak Status](https://github.com/OpenRiak/kv_index_tictactree/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
-| bitcask | ![Bitcask OpenRiak Status](https://github.com/OpenRiak/bitcask/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
+| riak_core |  ![Riak Core OpenRiak Status](https://github.com/OpenRiak/riak_core/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
+| riak_kv |    ![Riak KV OpenRiak Status](https://github.com/OpenRiak/riak_kv/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4)  |
+| riak_repl | ![Riak Repl OpenRiak Status](https://github.com/OpenRiak/riak_repl/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
+| riak_pipe | ![Riak Pipe OpenRiak Status](https://github.com/OpenRiak/riak_pipe/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
+| leveled | ![Leveled OpenRiak Status](https://github.com/OpenRiak/leveled/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
+| kv_index_tictactree | ![Tictac Tree OpenRiak Status](https://github.com/OpenRiak/kv_index_tictactree/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
+| bitcask | ![Bitcask OpenRiak Status](https://github.com/OpenRiak/bitcask/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
 
 ## Why Riak?
 
@@ -34,7 +34,7 @@ To make a package, install appropriate build tools for your operating system and
 
 To create a local multi-node build environment use `make devclean; make devrel`.
 
-To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test).
+To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test), follow [this guide for quick setup](https://github.com/OpenRiak/riak_test/doc/SIMPLE_SETUP.md).
 
 There is some historic information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html).  Work on refreshing the documentation is ongoing, and in the interim further documentation is available via Riak support organisations, or in the doc folders of the riak_kv and riak_core repositories.
 
