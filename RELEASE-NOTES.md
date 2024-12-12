@@ -50,6 +50,33 @@ When building from source, the `snappy` dependancy is now made rather than fetch
 
 In this release, tagging of individual dependencies has not been used.  Building consistently with the correct versions of dependencies is therefore dependent on the commit references being used from within the rebar.lock file.
 
+# Riak KV 3.0.18-nhse Release Notes
+
+This internal release helps with the operation of a Riak cluster with `delete_mode` set to `keep`:
+
+- The nextgenrepl solution is enhanced with [a configurable option](https://github.com/nhs-riak/riak_kv/blob/ca26ab26f03535eeb18bf88845782a4de226690f/priv/riak_kv.schema#L1347-L1352) to [replicate reap requests from the riak_kv_reaper](https://github.com/nhs-riak/riak_kv/pull/6) so that reap queries can be made whilst keeping clusters in full-sync.
+- The `$key` query feature [may now be configured](https://github.com/nhs-riak/riak_kv/blob/ca26ab26f03535eeb18bf88845782a4de226690f/priv/riak_kv.schema#L1520-L1527) to [ignore tombstones when the backend is leveled](https://github.com/nhs-riak/riak_kv/pull/8) to mimic the behaviour normally seen by queries when running other delete modes.
+
+# Riak KV 3.0.17-nhse Release Notes
+
+This internal release is to resolve a number of issues related to full-sync and aae_folds:
+
+- A fix to allow for [changes to be made safely](https://github.com/basho/riak_kv/pull/1868) at run-time to sink workers, without sink workers being unexpectedly over-provisioned.
+- A fix to ensure that [the startup of Riak is not delayed by connection timeouts and connection timeouts do not cause peer or sink crashes](https://github.com/nhs-riak/riak_kv/pull/1).
+- A fix to ensure that use of the `local` change_method in reap/erase aae_folds do lead to the [erase and reap work being distributed across the cluster](https://github.com/nhs-riak/riak_kv/pull/4).
+
+# Riak KV 3.0.16 Release Notes
+
+This release includes the following updates:
+
+- A significant new [riak_core cluster claim algorithm](https://github.com/basho/riak_core/pull/1008) has been added - `choose_claim_v4`.  The default cluster claim algorithm (`choose_claim_v2`) is unchanged, but the `choose_claim_fun` configuration option in riak.conf can be used to enable the new algorithm.  The new algorithm offers significant improvements in the claim process, especially when location awareness is enabled, with the algorithm now more likely to find valid solutions and with fewer required transfers.  The trade-off when compared to `choose_claim_v2` is that in some situations computational overhead of claim may increase by multiple orders of magnitude, leading to long cluster plan times.
+
+- The leveled backend has been updated to reduce the memory required for stores with a large number of keys, and also reduce volatility in the memory demanded, by [optimising the memory footprint of the SST process working heap](https://github.com/martinsumner/leveled/pull/403).
+
+- A collection of fixes have been added.  A fix to timeouts in [leveled hot backups](https://github.com/martinsumner/leveled/pull/406).  A fix to reap and erase queries to [prevent a backlog from overloading riak_kv_eraser or riak_kv_reaper mailboxes](https://github.com/basho/riak_kv/pull/1862) (creating rapidly increasing memory footprint).  A fix to an issue with [nextgen replication when node_confirms is enabled](https://github.com/basho/riak_kv/pull/1858).  The [R/W value used by nextgen replication is now configurable](https://github.com/basho/riak_kv/pull/1860), and this may be useful for preventing a backlog of replication events from overloading a cluster.
+
+As a result of the memory management improvements made in 3.0.16, the recommendation to consider altering the eheap single-block carrier threshold made in [Riak 3.0.12](#riak-kv-3012-release-notes) has been deprecated.  With the leveled backend, memory management should now be efficient on default settings, although with a small overhead on the latency of HEAD operations in that backend.
+
 # Riak KV 3.0.15 Release Notes
 
 Fix to an issue introduced with the `auto_check` feature for TictacAAE full-sync in [Riak KV 3.0.10](#riak-kv-3010-release-notes).
