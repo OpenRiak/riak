@@ -76,6 +76,9 @@ pwd
 (mkdir -p _build/default/lib && cd _build/default/lib && for d in ../../../../../../../../_build/default/lib/*; do ln -sf $d; done)
 make rel-rpm
 rm -rf rel/riak/lib/*/c_src rel/riak/lib/*/src
+# additionally, delete zstd/tests (waste of space in package file, but also
+# it has files with "#!/bin env python" where rpmbuild wants explicit python2 or python3)
+rm -rf rel/riak/lib/zstd*/priv/zstd/tests
 
 %install
 %define relpath %{_builddir}/%{buildsubdir}/rel/riak
