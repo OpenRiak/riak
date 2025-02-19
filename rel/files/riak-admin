@@ -789,7 +789,7 @@ case "$1" in
             echo "Lists the services available on the node. See also: wait-for-service"
             exit 1
         fi
-        rpc riak_core_node_watcher services
+        rpc_raw riak_core_node_watcher services
         ;;
 
     wait[_-]for[_-]service)
