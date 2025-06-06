@@ -40,7 +40,7 @@ function maybe_su {
         # (hidden) node to then execute custom erlang code via -eval,
         # we need to cd to a dir containing the erlang cookie
         cd "{{platform_base_dir}}"
-        if `grep BSD /etc/os-release` ; then
+        if grep BSD /etc/os-release >2&>1 >/dev/null ; then
             su_bsd "$@"
         else
             sudo -H -E -u riak -- "$@"
