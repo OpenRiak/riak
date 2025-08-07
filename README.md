@@ -20,6 +20,8 @@ Riak is built on top of the [Erlang/OTP platform](https://github.com/erlang/otp)
 
 ![OTP Supported](https://img.shields.io/badge/OTP_Backwards_Compatible-_OTP_24_-blue)
 
+For other OTP versions, an alternative `openriak-<release>` branch will be required.  See [the roadmap discussion](https://github.com/orgs/OpenRiak/discussions/19) for further details.
+
 ## Why Riak?
 
 Riak is a distributed key-value store, designed to provide high-availability with predictable response times in the presence of complex failure scenarios. It can be configured to provide assurance against data loss, even where individual nodes have ephemeral storage, and groups of nodes can be concurrently impacted by failure events. It is a reliable system whilst running on simple, low-cost, commodity components - remaining highly available without the need for urgent operator intervention.
