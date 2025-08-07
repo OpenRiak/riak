@@ -1,11 +1,5 @@
 # Riak - a distributed, decentralised data storage system.
 
-## OTP Version support
-
-![OTP Recommended](https://img.shields.io/badge/OTP_Version_Recommended-OTP26-green)
-
-![OTP Supported](https://img.shields.io/badge/OTP_Version_Supported-OTP24-blue)
-
 ## Build Status
 
 | Component  |     Status      |
@@ -17,6 +11,14 @@
 | leveled | ![Leveled OpenRiak Status](https://github.com/OpenRiak/leveled/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
 | kv_index_tictactree | ![Tictac Tree OpenRiak Status](https://github.com/OpenRiak/kv_index_tictactree/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.4) |
 | bitcask | ![Bitcask OpenRiak Status](https://github.com/OpenRiak/bitcask/actions/workflows/erlang.yml/badge.svg?branch=openriak-3.2) |
+
+## OTP version support
+
+Riak is built on top of the [Erlang/OTP platform](https://github.com/erlang/otp).  Supported versions for this release are:
+
+![OTP Recommended](https://img.shields.io/badge/OTP_Recommended_Version-_OTP_26_-green)
+
+![OTP Supported](https://img.shields.io/badge/OTP_Backwards_Compatible-_OTP_24_-blue)
 
 ## Why Riak?
 
