@@ -1,5 +1,10 @@
 # Riak - a distributed, decentralised data storage system.
 
+## OTP Version support
+
+![OTP Recommended](https://img.shields.io/badge/OTP_Version_Recommended-OTP26-green)
+![OTP Supported](https://img.shields.io/badge/OTP_Version_Supported-OTP24-blue)
+
 ## Build Status
 
 | Component  |     Status      |
@@ -26,7 +31,7 @@ Riak is built almost entirely using BEAM technology, a platform designed from th
 
 ## Getting Started
 
-To build Riak, Erlang OTP 24 is preferred.
+To build Riak, Erlang OTP 26 is recommended.
 
 `make rel` will build a release which can be run via `rel/riak/bin/riak daemon`.  Riak is primarily configured via `rel/riak/etc/riak.conf`
 
