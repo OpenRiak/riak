@@ -3,6 +3,7 @@
 ## OTP Version support
 
 ![OTP Recommended](https://img.shields.io/badge/OTP_Version_Recommended-OTP26-green)
+
 ![OTP Supported](https://img.shields.io/badge/OTP_Version_Supported-OTP24-blue)
 
 ## Build Status
