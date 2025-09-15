@@ -1,3 +1,14 @@
+# Riak KV 3.2.6 Release Notes
+
+This release includes:
+
+- A performance-related fix to [avoid use of the deprecated erlang phash library](https://github.com/OpenRiak/riak_kv/pull/53).
+- A fix to allow configuration of [IPv6 addresses in nextgenrepl peer strings](https://github.com/OpenRiak/riak_kv/pull/40).
+- An update to the build system for [eleveldb to improve long-term stability of the build process](https://github.com/OpenRiak/eleveldb/pull/5).
+- Minor changes associated with future OTP compatibility.
+
+The release should be used with OTP 24 only.
+
 # Riak KV 3.2.5 Release Notes
 
 This release is a minor fix to the NextGenRepl full-sync mechanism.  There has existed a workaround to the issue since [Riak 3.0.10](https://github.com/OpenRiak/riak/blob/openriak-3.2/RELEASE-NOTES.md#riak-kv-3010-release-notes), and that workaround was made more efficient in [Riak 3.2.3](https://github.com/OpenRiak/riak/blob/openriak-3.2/RELEASE-NOTES.md#riak-kv-323-release-notes).  This release includes an attempt to resolve a potential root cause, which is [an issue with modifications to AAE caches when the previous vector clock hashed to precisely 0](https://github.com/OpenRiak/riak_kv/issues/32).
@@ -52,7 +63,7 @@ The primary changes are:
 
 # Riak KV 3.2.0 Release Notes
 
-This release is an OTP uplift release.  Whereas release 3.0.1 supports OTP 22; the intention is for Release 3.2.n to support OTP 22, OTP 24, and OTP 25.  There are potential throughput benefits of up to 10% when using OTP 24/25 rather than OTP 22 where load is CPU bound.  OTP 25 is currently the preferred platform for this release.
+This release is an OTP uplift release.  Whereas release 3.0.1 supports OTP 22; the intention is for Release 3.2.n to support OTP 22, OTP 24,.  There are potential throughput benefits of up to 10% when using OTP 24 rather than OTP 22 where load is CPU bound.  OTP 24 is currently the preferred platform for this release.
 
 There are specific risks associated with OTP uplift releases due to the large volume of underlying changes inherited.  It is advised that Riak users should take specific care to test this release in a pre-production environment.  Please raise any issues discovered via Github.
 
