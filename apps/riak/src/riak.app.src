@@ -6,7 +6,6 @@
        kernel,
        stdlib,
        tools,
-       syslogger,
        public_key,
        ssl,
        os_mon,

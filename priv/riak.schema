@@ -14,9 +14,50 @@
   {default, "[time,\" [\",level,\"] \",pid,\"@\",mfa,\":\",line,\" \",msg,\"\\n\"]."}
 ]}.
 
-%% @doc Filename to use for log files.
+%% @doc Filename to use for default log file.
 {mapping, "logger.file", "kernel.logger", [
   {default, "$(platform_log_dir)/console.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for error log file (if configured)
+{mapping, "logger.error_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/error.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for crash log file (if configured)
+{mapping, "logger.crash_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/crash.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for report log file (if configured)
+{mapping, "logger.report_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/report.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for backend log file (if configured)
+%% The backend log can be used to divert leveled backend logs away from the
+%% default logger file
+{mapping, "logger.backend_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/backend.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for background log file (if configured)
+%% The background log can be used to divert tictacaae and timer-based metric
+%% logs away from the default logger file
+{mapping, "logger.background_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/background.log"},
+  {datatype, file}
+]}.
+
+%% @doc filename to be used for json log file (if configured)
+%% The json file can be used to capture all logs in a json format
+{mapping, "logger.json_file", "kernel.logger", [
+  {default, "$(platform_log_dir)/json.log"},
   {datatype, file}
 ]}.
 
@@ -34,36 +75,72 @@
   {datatype, bytesize}
 ]}.
 
+%% @doc Default filters
+%% A '|' delimited list of filters which will cause logs to be diverted from
+%% the common `logger.file` into other log files.
+%%
+%% The supported options are crash, error, progress, report, sasl, backend or
+%% background.
+%%
+%% Where these filters are applied, the logs will be ignored unless additional
+%% handlers are defined as a location for the filtered logs within
+%% `logger.additional_handlers`.
+%%
+%% e.g. "logger.default_filters = crash|error|progress|sasl|backend|background"
+{mapping, "logger.default_filters", "kernel.logger", [
+  {default, ""},
+  {commented, ""},
+  {validators, ["default_filters"]}
+]}.
+
+{validator,
+ "default_filters",
+ "must be a '|' list containing only crash, error, progress, report, sasl, backend or background",
+ fun(PipedList) ->
+    AtomList = string:lexemes(PipedList, "|"),
+    Candidates =
+      ["crash", "error", "progress", "report", "sasl", "backend", "background"],
+    lists:all(fun(A) -> lists:member(A, Candidates) end, AtomList)
+ end}.
+
+%% @doc Additional Handlers
+%% A '|' delimited list of additional handlers which will be used to handle
+%% logs of specific types.
+%%
+%% Supported additional handlers are crash, error, report, backend, background
+%% and json.
+%%
+%% For non-json handlers, only specific logs related to that handler will be
+%% logged into the related file.  For the json handler all logs will be stored
+%% (but in a json format)
+%%
+%% e.g. logger.additional_handlers = crash|error|report|backend|background
+{mapping, "logger.additional_handlers", "kernel.logger", [
+  {default, ""},
+  {commented, ""},
+  {validators, ["additional_handlers"]}
+]}.
+
+{validator,
+ "additional_handlers",
+ "must be a '|' list containing only crash, error, report, backend, background or json",
+ fun(PipedList) ->
+    AtomList = string:lexemes(PipedList, "|"),
+    Candidates =
+      ["crash", "error", "report", "backend", "background", "json"],
+    lists:all(fun(A) -> lists:member(A, Candidates) end, AtomList)
+ end
+ }.
+
 {translation,
  "kernel.logger",
  fun(Conf) ->
-    LogFile = cuttlefish:conf_get("logger.file", Conf),
-    MaxNumBytes = cuttlefish:conf_get("logger.max_file_size", Conf),
-    MaxNumFiles = cuttlefish:conf_get("logger.max_files", Conf),
-
-    DefaultFormatStr = cuttlefish:conf_get("logger.format", Conf),
-    DefaultFormatTerm =
-        case erl_scan:string(DefaultFormatStr) of
-            {ok, DefaultTokens, _} ->
-                case erl_parse:parse_term(DefaultTokens) of
-                    {ok, DefaultTerm} ->
-                        DefaultTerm;
-                    {error, {_, _, DefaultError}} ->
-                        cuttlefish:error(foo)
-                end;
-            {error, {_, _, DefaultScanError}} ->
-                cuttlefish:error(foo)
-        end,
-    ConfigMap0 = #{config => #{file => LogFile,
-                              max_no_bytes => MaxNumBytes,
-                              max_no_files => MaxNumFiles},
-                  formatter => {logger_formatter, 
-                                    #{template => DefaultFormatTerm}
-                               }
-                 },
-
-    [{handler, default, logger_std_h, ConfigMap0}]
-    
+    case riak_logger_config:handler_config(Conf, fun cuttlefish:conf_get/2) of
+      {ok, Handlers} ->
+        Handlers;
+      Error ->
+        Error
+    end
   end
 }.
 
