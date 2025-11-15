@@ -76,8 +76,8 @@
 ]}.
 
 %% @doc Default filters
-%% A '|' delimited list of filters which will cause logs to be diverted from
-%% the common `logger.file` into other log files.
+%% A list of log types for where logs are expected to be filtered from the
+%% common `logger.file` (i.e. console.log).
 %%
 %% The supported options are crash, error, progress, report, sasl, backend or
 %% background.
@@ -86,26 +86,21 @@
 %% handlers are defined as a location for the filtered logs within
 %% `logger.additional_handlers`.
 %%
-%% e.g. "logger.default_filters = crash|error|progress|sasl|backend|background"
+%% The backend and background filters are filters based on `domain`.  The
+%% backend filter will presently filter every log in the domain
+%% [backend, leveled].  For background, it will be [background, tictacaae] or
+%% [background, metric]
+%%
+%% The default configuration of none is used to indicate no default_filters
 {mapping, "logger.default_filters", "kernel.logger", [
-  {default, ""},
-  {commented, ""},
-  {validators, ["default_filters"]}
+  {datatype, {list, {enum, [none, crash, error, progress, report, sasl, backend, background]}}},
+  {default, "none"}
 ]}.
 
-{validator,
- "default_filters",
- "must be a '|' list containing only crash, error, progress, report, sasl, backend or background",
- fun(PipedList) ->
-    AtomList = string:lexemes(PipedList, "|"),
-    Candidates =
-      ["crash", "error", "progress", "report", "sasl", "backend", "background"],
-    lists:all(fun(A) -> lists:member(A, Candidates) end, AtomList)
- end}.
-
 %% @doc Additional Handlers
-%% A '|' delimited list of additional handlers which will be used to handle
-%% logs of specific types.
+%% A list of additional handlers which will be used to handle logs of specific
+%% types.  These handlers will duplicate logs in the default 'logger.file'
+%% (i.e. the console.log) unless there are also matching default filters.
 %%
 %% Supported additional handlers are crash, error, report, backend, background
 %% and json.
@@ -114,23 +109,11 @@
 %% logged into the related file.  For the json handler all logs will be stored
 %% (but in a json format)
 %%
-%% e.g. logger.additional_handlers = crash|error|report|backend|background
+%% The default configuration of none is used to indicate no additional_handlers
 {mapping, "logger.additional_handlers", "kernel.logger", [
-  {default, ""},
-  {commented, ""},
-  {validators, ["additional_handlers"]}
+  {datatype, {list, {enum, [none, crash, error, report, backend, background]}}},
+  {default, "none"}
 ]}.
-
-{validator,
- "additional_handlers",
- "must be a '|' list containing only crash, error, report, backend, background or json",
- fun(PipedList) ->
-    AtomList = string:lexemes(PipedList, "|"),
-    Candidates =
-      ["crash", "error", "report", "backend", "background", "json"],
-    lists:all(fun(A) -> lists:member(A, Candidates) end, AtomList)
- end
- }.
 
 {translation,
  "kernel.logger",

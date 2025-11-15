@@ -52,11 +52,11 @@ advanced_logger_schema_test() ->
         [
             {
                 ["logger", "default_filters"],
-                "crash|error|progress|sasl|backend|background"
+                "crash, error, progress, sasl, backend, background"
             },
             {
                 ["logger", "additional_handlers"],
-                "crash|error|report|backend|background"
+                "crash, error, report, backend, background"
             }
         ],
     GenConfig =
@@ -70,61 +70,6 @@ advanced_logger_schema_test() ->
     {logger, HandlerConfig} = lists:keyfind(logger, 1, LoggingConfig),
     ?assertMatch(6, length(HandlerConfig)).
 
-bad_filter_schema_test() ->
-    Config =
-        [
-            {
-                ["logger", "default_filters"],
-                "crash|hesawrongun|progress|sasl|backend|background"
-            },
-            {
-                ["logger", "additional_handlers"],
-                "crash|error|report|backend|background"
-            }
-        ],
-    ErrorConfig =
-        cuttlefish_unit:generate_templated_config(
-            ["priv/riak.schema"],
-            Config,
-            context(),
-            predefined_schema()
-        ),
-    {error, validation, {errorlist, ErrorList}} = ErrorConfig,
-    [{error, {validation, {ValTest, ValReport}}}] = ErrorList,
-    ?assertMatch("logger.default_filters", ValTest),
-    ?assertMatch(
-        "must be a '|' list containing only "
-        "crash, error, progress, report, sasl, backend or background",
-        ValReport
-    ).
-
-bad_handler_schema_test() ->
-    Config =
-        [
-            {
-                ["logger", "default_filters"],
-                "crash|error|progress|sasl|backend|background"
-            },
-            {
-                ["logger", "additional_handlers"],
-                "crash|hesawrongun|report|backend|background"
-            }
-        ],
-    ErrorConfig =
-        cuttlefish_unit:generate_templated_config(
-            ["priv/riak.schema"],
-            Config,
-            context(),
-            predefined_schema()
-        ),
-    {error, validation, {errorlist, ErrorList}} = ErrorConfig,
-    [{error, {validation, {ValTest, ValReport}}}] = ErrorList,
-    ?assertMatch("logger.additional_handlers", ValTest),
-    ?assertMatch(
-        "must be a '|' list containing only "
-        "crash, error, report, backend, background or json",
-        ValReport
-    ).
 
 expected_default_vmargs() ->
     [
