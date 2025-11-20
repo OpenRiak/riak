@@ -28,6 +28,8 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
+      - name: Install pam
+        run: sudo apt install -y libpam0g-dev
       - name: Compile
         run: ./rebar3 compile
       - name: Run xref and dialyzer
