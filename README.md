@@ -20,7 +20,7 @@ Riak is built on top of the [Erlang/OTP platform](https://github.com/erlang/otp)
 
 ![OTP Supported](https://img.shields.io/badge/OTP_Backwards_Compatible-_OTP_24_-blue)
 
-For other OTP versions, an alternative `openriak-<release>` branch will be required.  See [the roadmap discussion](https://github.com/orgs/OpenRiak/discussions/19) for further details.
+For other OTP versions, an alternative `openriak-<release>` branch will be required.  See [the roadmap discussion](https://github.com/orgs/OpenRiak/discussions/19) for further details. The `openriak-4.0` branch can be used for non-production systems to [trial the use of Riak with OTP 28.3](https://github.com/orgs/OpenRiak/discussions/38).
 
 ## Why Riak?
 
@@ -28,7 +28,7 @@ Riak is a distributed key-value store, designed to provide high-availability wit
 
 Riak is commonly used as a schema-free database for the storage and indexing of records, documents, objects or binaries with minimal constraints imposed by the database. In functional terms, Riak can be considered to be a hybrid combination of some of the features available within S3 and DynamoDB.
 
-Riak Riak fully supports multi-cluster environments (within and across physical locations), where open replication is possible not just between Riak clusters, but between Riak clusters and other database services. With Riak, reconciliation is considered as important as replication. Clusters may come in different shapes and sizes - but it is important that as well as replicating data between clusters, it is possible to do rapid and continuous verification that clusters remain synchronised.
+Riak fully supports multi-cluster environments (within and across physical locations), where open replication is possible not just between Riak clusters, but between Riak clusters and other database services. With Riak, reconciliation is considered as important as replication. Clusters may come in different shapes and sizes - but it is important that as well as replicating data between clusters, it is possible to do rapid and continuous verification that clusters remain synchronised.
 
 Riak users have been running large-scale production databases in mission-critical environments on commodity hardware with more than a decade of continuous uptime. These environments are noted not just for their high availability, but for their low operator-intervention rates. Riak is often preferred in organisations where technology choices need to be long-lasting, and ongoing operational costs are a more important consideration than up-front developer costs.
 
