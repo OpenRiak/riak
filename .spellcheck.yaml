@@ -1,0 +1,21 @@
+spellchecker: aspell
+matrix:
+- name: markdown
+  aspell:
+    lang: en
+    d: en_GB
+    mode: markdown
+    ignore-case: true
+  sources:
+  - 'docs/*.md'
+  - 'README.md'
+  - 'RELEASE-NOTES.md'
+  pipeline:
+  - pyspelling.filters.markdown
+  dictionary:
+    wordlists:
+    - wordlist.txt
+    output: wordlist.dic
+    encoding: utf-8
+  default_encoding: utf-8
+  expect_match: true

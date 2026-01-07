@@ -1,0 +1,37 @@
+title: OpenRiak QuickDocs
+description: Documentation for the OpenRiak Riak project
+theme: just-the-docs
+
+plugins:
+  - jekyll-relative-links
+
+url: https://openriak.github.io/riak/
+
+aux_links:
+  "Discuss OpenRiak on GitHub": https://github.com/orgs/OpenRiak/discussions
+
+logo: "/assets/images/OpenRiakSymbol_cropped.png"
+
+favicon_ico: "/assets/images/favicon.ico"
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    color: yellow
+  important:
+    title: Important
+    color: blue
+  new:
+    title: New
+    color: green
+  note:
+    color: purple
+  warning:
+    title: Warning
+    color: red
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+mermaid:
+  version: "11.12.2"

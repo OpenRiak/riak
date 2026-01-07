@@ -1,0 +1,17 @@
+name: linkcheck
+
+on:
+  pull_request:
+    branches:
+      - openriak-3.4
+
+jobs:
+  check-links:
+    name: runner / linkspector
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@v1.4.0
+        with:
+          config_file: ./.linkspector.yml
