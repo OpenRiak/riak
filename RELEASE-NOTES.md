@@ -97,7 +97,7 @@ The primary changes are:
 
 - Support for both [zstd compression](https://github.com/martinsumner/leveled/pull/430) and [no compression](https://github.com/martinsumner/leveled/pull/417) in the leveled backend.
 - Tidy up the [closing of processes within leveled](https://github.com/nhs-riak/leveled/pull/4).
-- [Improvements to the CPU efficiency](https://github.com/martinsumner/leveled/pull/428) of leveled, specificaly when handling secondary index queries and aae folds.
+- [Improvements to the CPU efficiency](https://github.com/martinsumner/leveled/pull/428) of leveled, specifically when handling secondary index queries and aae folds.
 - Upgrade the [json library used in producing 2i query results](https://github.com/nhs-riak/riak_kv/pull/20) to the [library scheduled for inclusion in OTP 27](https://github.com/erlang/otp/pull/8111).
 - Add [data size estimation to the riak_kv_leveled_backend](https://github.com/nhs-riak/riak_kv/pull/18) to allow for progress reporting on transfers.
 - Prevent the [start of replication processes before riak_kv startup has completed](https://github.com/nhs-riak/riak_kv/pull/23).
@@ -113,13 +113,13 @@ This release is an OTP uplift release.  Whereas release 3.0.1 supports OTP 22; t
 
 There are specific risks associated with OTP uplift releases due to the large volume of underlying changes inherited.  It is advised that Riak users should take specific care to test this release in a pre-production environment.  Please raise any issues discovered via Github.
 
-As part of this change, the [lager](https://github.com/erlang-lager/lager) dependancy has been removed, with OTP's internal [logger](https://www.erlang.org/doc/apps/kernel/logger_chapter.html) used instead.  Any logging configuration should be updated as a part of the migration, using the new options made available via [riak.conf](https://github.com/basho/riak/blob/812ded6d64b080beeb068ba92f508556e6916d97/priv/riak.schema#L1-L35).  Support for logging using syslog has been removed.  The leveled backend will still write directly to erlang.log files, but this will be addressed in [a future release](https://github.com/martinsumner/leveled/issues/388).
+As part of this change, the [lager](https://github.com/erlang-lager/lager) dependency has been removed, with OTP's internal [logger](https://www.erlang.org/doc/apps/kernel/logger_chapter.html) used instead.  Any logging configuration should be updated as a part of the migration, using the new options made available via [riak.conf](https://github.com/basho/riak/blob/812ded6d64b080beeb068ba92f508556e6916d97/priv/riak.schema#L1-L35).  Support for logging using syslog has been removed.  The leveled backend will still write directly to erlang.log files, but this will be addressed in [a future release](https://github.com/martinsumner/leveled/issues/388).
 
-There has been a significant overhaul of the release and packaging scripts in order to adopt changes within [relx](https://github.com/erlware/relx).  Note that due to the updates in relx, `riak daemon` should be used instead of `riak start`.  Some riak and riak-admin commands may also now return an additional `ok` output.  Going forward, both `riak admin` and `riak-admin` should work for admin commands.  Packaging suport has now been added for Alpine Linux and FreeBSD.
+There has been a significant overhaul of the release and packaging scripts in order to adopt changes within [relx](https://github.com/erlware/relx).  Note that due to the updates in relx, `riak daemon` should be used instead of `riak start`.  Some riak and riak-admin commands may also now return an additional `ok` output.  Going forward, both `riak admin` and `riak-admin` should work for admin commands.  Packaging support has now been added for Alpine Linux and FreeBSD.
 
 Note that this release of Riak is packaged with a bespoke build of [rebar3](https://github.com/martinsumner/rebar3/tree/mas-alternative_deprecation_warning), this alters mainstream rebar3/relx to allow us control over deprecation warnings in relx.
 
-When building from source, the `snappy` dependancy is now made rather than fetched using a cached package, so support for `cmake` is required to build.  Note that on older versions of OSX the current version of snappy will not compile.  This will be resolved when their is a formal release version of snappy containing [this fix](https://github.com/google/snappy/commit/8dd58a519f79f0742d4c68fbccb2aed2ddb651e8).
+When building from source, the `snappy` dependency is now made rather than fetched using a cached package, so support for `cmake` is required to build.  Note that on older versions of OSX the current version of snappy will not compile.  This will be resolved when their is a formal release version of snappy containing [this fix](https://github.com/google/snappy/commit/8dd58a519f79f0742d4c68fbccb2aed2ddb651e8).
 
 In this release, tagging of individual dependencies has not been used.  Building consistently with the correct versions of dependencies is therefore dependent on the commit references being used from within the rebar.lock file.
 
@@ -160,7 +160,7 @@ This release [fixes an issue](https://github.com/martinsumner/leveled/issues/393
 
 An additional [minor improvement has been made to handoffs](https://github.com/basho/riak_kv/pull/1851). Previously requests to reap tombstones after deletions (where the delete_mode is not `keep`), would not be forwarded during handoffs.  These tombstones would then need to be corrected by AAE (which may result in a permanent tombstone).  There is now a configuration option `handoff_deletes` which can be enabled to ensure these reap requests are forwarded, reducing the AAE work required on handoff completion.
 
-Desipite the handoff improvements in [Riak KV 3.0.13](#riak-kv-3013-release-notes), handoff timeouts are still possible.  If handoff timeouts do occur, then the first stage should be to reduce the [handoff batch threshold count](https://github.com/basho/riak_core/blob/riak_kv-3.0.14/priv/riak_core.schema#L47-L55) to a lower number than that of [the item_count in the handoff sender log](https://github.com/basho/riak_core/blob/riak_kv-3.0.14/src/riak_core_handoff_sender.erl#L474-L486).
+Despite the handoff improvements in [Riak KV 3.0.13](#riak-kv-3013-release-notes), handoff timeouts are still possible.  If handoff timeouts do occur, then the first stage should be to reduce the [handoff batch threshold count](https://github.com/basho/riak_core/blob/riak_kv-3.0.14/priv/riak_core.schema#L47-L55) to a lower number than that of [the item_count in the handoff sender log](https://github.com/basho/riak_core/blob/riak_kv-3.0.14/src/riak_core_handoff_sender.erl#L474-L486).
 
 # Riak KV 3.0.13 Release Notes
 
@@ -200,7 +200,7 @@ This is a general release of changes and fixes:
 
 - [Two](https://github.com/basho/riak_kv/pull/1839) [other](https://github.com/basho/riak_kv/pull/1837) fixes within Riak KV.
 
-As part of this release, further testing of the new memory configuration options added in Riak 3.0.10 has been undertaken.  It is now recommended when using the leveled backend, that if memory growth in the Riak process is a signifcant concern, then the following configuration option may be tested: `erlang.eheap_memory.sbct = 128`.  This has been shown to reduce the memory footprint of Riak, with a small performance overhead.
+As part of this release, further testing of the new memory configuration options added in Riak 3.0.10 has been undertaken.  It is now recommended when using the leveled backend, that if memory growth in the Riak process is a significant concern, then the following configuration option may be tested: `erlang.eheap_memory.sbct = 128`.  This has been shown to reduce the memory footprint of Riak, with a small performance overhead.
 
 # Riak KV 3.0.11 Release Notes
 
@@ -385,9 +385,9 @@ The particular improvements are:
 
 - In leveled, a fix to prevent very long list-buckets queries when buckets have just been deleted (by erasing all keys).
 
-- In kv_index_tictcatree, improved logging and exchange controls to make exchanges easier to monitor and less likely to prompt unnecessary work.
+- In kv_index_tictactree, improved logging and exchange controls to make exchanges easier to monitor and less likely to prompt unnecessary work.
 
-- In kv_index_tictcatree, a change to speed-up the necessary rebuilds of aae tree-caches following a node crash, by only testing journal presence in scheduled rebuilds.
+- In kv_index_tictactree, a change to speed-up the necessary rebuilds of aae tree-caches following a node crash, by only testing journal presence in scheduled rebuilds.
 
 - In riak_kv_ttaaefs_manager, some essential fixes to prevent excessive CPU load when comparing large volumes of keys and clocks, due to a failure to decode clocks correctly before passing to the exchange.
 
@@ -436,9 +436,9 @@ This release is focused on fixing a number of non-critical issues:
 
 - [An issue with Tictac AAE](https://github.com/basho/riak_kv/issues/1759) failing to clean-up state correctly on node leaves, which may lead to false repairs on re-joining a node (until tree rebuilds occur).
 
-- [An issue with using the leveled backend in Riak CS](https://github.com/basho/riak_kv/issues/1758) releated to the ordered object fold not respecting the passed in range and crashing on hitting an out of range value.
+- [An issue with using the leveled backend in Riak CS](https://github.com/basho/riak_kv/issues/1758) related to the ordered object fold not respecting the passed in range and crashing on hitting an out of range value.
 
-- [An issue with duplicate PUTs](https://github.com/basho/riak_kv/issues/1754) related to retries of PUT coordinater forward requests due to lost ACKs.
+- [An issue with duplicate PUTs](https://github.com/basho/riak_kv/issues/1754) related to retries of PUT coordinator forward requests due to lost ACKs.
 
 - [An issue with Tictac AAE startup](https://github.com/martinsumner/kv_index_tictactree/issues/74) caused by a failure of the corrupt file detection to handle a situation where file truncation means the CRC is not present.
 
@@ -447,13 +447,13 @@ This release is focused on fixing a number of non-critical issues:
 
 This release includes:
 
-- An extension to the `node_confirms` feature so that `node_confirms` can be [tracked on GETs as well as PUTs](https://github.com/basho/riak_kv/issues/1750).  This is provided so that if an attempt to PUT with a `node_confirms` value failed, a read can be made which will only succeed if repsonses from sufficient nodes are received.  This does not confirm absolutely that the actual returned response is on sufficient nodes, but does confirm nodes are now up so that anti-entropy mechanisms will soon resolve any missing data.  
+- An extension to the `node_confirms` feature so that `node_confirms` can be [tracked on GETs as well as PUTs](https://github.com/basho/riak_kv/issues/1750).  This is provided so that if an attempt to PUT with a `node_confirms` value failed, a read can be made which will only succeed if responses from sufficient nodes are received.  This does not confirm absolutely that the actual returned response is on sufficient nodes, but does confirm nodes are now up so that anti-entropy mechanisms will soon resolve any missing data.  
 
 - Support for building [leveldb on 32bit platforms](https://github.com/basho/leveldb/commit/14c57fe018402b3271cc8ac070fbd620b6ff7798).
 
 - Improvements to reduce the cost of journal compaction in leveled when there are large numbers of files containing mainly skeleton key-changes objects.  The cost of scoring all of these files could have a notable impact on read loads when spinning HDDs are used (although this could be mitigated by running the journal compaction less frequently, or out of hours).  Now an attempt is made to reduce this scoring cost by reading the keys to be scored in order, and scoring keys relatively close together.  This will reduce the size of the disk head movements required to complete the scoring process.
 
-- The abilty to switch the configuration of leveled [journal compaction to using `recalc` mode](https://github.com/martinsumner/leveled/issues/306), and hence avoid using skeleton key changes objects altogether.  The default remains `retain` mode, the switch from `retain` mode to enabling `recalc` is supported without any data modification (just a restart required).  There is though, no safe way other than leaving the node from the cluster (and rejoining) to revert from `recalc` back to `retain`.  The use of the `recalc` strategy [can be enabled via configuration](https://github.com/basho/riak_kv/blob/riak_kv-2.9.2/priv/riak_kv.schema#L1120-L1138).  The use of `recalc` mode has outperformed `retain` in tests, when both running journal compaction jobs, and recovering empty ledgers via journal reloads.
+- The ability to switch the configuration of leveled [journal compaction to using `recalc` mode](https://github.com/martinsumner/leveled/issues/306), and hence avoid using skeleton key changes objects altogether.  The default remains `retain` mode, the switch from `retain` mode to enabling `recalc` is supported without any data modification (just a restart required).  There is though, no safe way other than leaving the node from the cluster (and rejoining) to revert from `recalc` back to `retain`.  The use of the `recalc` strategy [can be enabled via configuration](https://github.com/basho/riak_kv/blob/riak_kv-2.9.2/priv/riak_kv.schema#L1120-L1138).  The use of `recalc` mode has outperformed `retain` in tests, when both running journal compaction jobs, and recovering empty ledgers via journal reloads.
 
 - An improvement to the efficiency of [compaction in the leveled LSM-tree based ledger](https://github.com/martinsumner/leveled/issues/311) with large numbers of tombstones (or modified index entries), by using a `grooming` selection strategy 50% of the time when selecting files to merge rather than selecting files at random each time.  The `grooming` selection, will take a sample of files and merge the one with the most tombstones.  The use of the grooming strategy is not configurable, and will have no impact until the vast majority of SST files have been re-written under this release.
 
@@ -509,7 +509,7 @@ It is recommended that any 2.9.0 installations be upgraded to include this path,
 
 An [issue](https://github.com/martinsumner/leveled/issues/287) was discovered in leveled, whereby following a restart of Riak and a workload of fetch requests, the backend demanded excess amounts of binary heap references.  Underlying was an issue with the use of sub-binary references during the lazy load of slot header information after a SST file process restart.  This has been resolved, and with [greater control added](https://github.com/martinsumner/leveled/blob/0.9.18/priv/leveled.schema#L86-L93) to force the ledger contents into the page cache at startup.
 
-A further [issue](https://github.com/martinsumner/leveled/issues/289) was discovered in long-running pre-production tests whereby leveled journal compaction could enter into a loop where it would perform compaction work, that failed to release space.  This has been resolved, and some further safety checks added to ensure that memory usage does not grow excessively during the comapction process.  As part of this change, an additional [configurable limit](https://github.com/martinsumner/leveled/blob/0.9.18/priv/leveled.schema#L75-L84) has been added on the number of objects in a leveled journal (CDB) file - now a file will be considered full when it hits either the space limit (previous behaviour) or the object limit.
+A further [issue](https://github.com/martinsumner/leveled/issues/289) was discovered in long-running pre-production tests whereby leveled journal compaction could enter into a loop where it would perform compaction work, that failed to release space.  This has been resolved, and some further safety checks added to ensure that memory usage does not grow excessively during the compaction process.  As part of this change, an additional [configurable limit](https://github.com/martinsumner/leveled/blob/0.9.18/priv/leveled.schema#L75-L84) has been added on the number of objects in a leveled journal (CDB) file - now a file will be considered full when it hits either the space limit (previous behaviour) or the object limit.
 
 The issues resolved in this patch impact only the use of leveled backend, either directly or via the use of Tictac AAE.
 
