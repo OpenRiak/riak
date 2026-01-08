@@ -5,7 +5,6 @@ BUILD_STAGE_DIR = $(BUILDDIR)/riak
 
 # Where we install things (based on vars.config)
 # /usr/local based dirs
-PMAN_DIR         = $(BUILD_STAGE_DIR)/usr/local/man
 PBIN_DIR         = $(BUILD_STAGE_DIR)/usr/local/lib/riak/bin
 PETC_DIR         = $(BUILD_STAGE_DIR)/usr/local/etc/riak
 PLIB_DIR         = $(BUILD_STAGE_DIR)/usr/local/lib/riak
@@ -43,12 +42,6 @@ packing_list_files: $(BUILD_STAGE_DIR)
 	@cd $(BUILD_STAGE_DIR) && \
 	        echo "version: \"${PKG_VERSION}\"" >> +MANIFEST && \
 	        echo "files: {" >> +MANIFEST
-
-	@echo "Copying Man pages to staging directory"
-	@cd $(BUILDDIR) && \
-	if [ -d doc/man/man1 ]; then \
-		mkdir -p $(PMAN_DIR) && \
-		cp -R doc/man/man1 $(PMAN_DIR); fi
 
 	@echo "Packaging /usr/local files"
 	@cd $(BUILD_STAGE_DIR) && \
