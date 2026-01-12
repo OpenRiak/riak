@@ -2,7 +2,7 @@
 
 This release supports two major additional features, not available in Riak 3.2.6:
 
-- [A new Query API](https://openriak.github.io/riak_kv/QueryAPI.html) that offers improved support for conjunction queries; either through the application of filter expressions to projected attributes appended to sort keys, or through set expressions to combine the results of different range queries.  Support is also added for different accumulation options, so that queries can return counts as well as counts by specific attributes.
+- [A new Query API](https://openriak.github.io/riak_kv/QueryAPI.html) that offers improved support for conjunction queries; either through the application of filter expressions to projected attributes appended to sort keys, or through set expressions to combine the results of different range queries.  Support is also added for different accumulation options; so that queries can return counts and counts by specific attributes as well as lists of keys and keys/terms.
 - [Extending conditional PUT logic to have token-based consensus on conditional checks](https://openriak.github.io/riak_kv/ObjectAPI.html#conditional-requests); allowing for the stronger application of conditions on PUTs, to significantly reduce the probability of siblings resulting from concurrent updates within a cluster.
 
 There are a number of other improvements in the release:
@@ -11,7 +11,7 @@ There are a number of other improvements in the release:
 - [Monitoring facilities for Tictac-based AAE via a Command Line Interface](https://openriak.github.io/riak_kv/OperationsAndTroubleshootingGuide.html#monitoring-and-controlling-aae---command-line); allowing for the prompting of tree rebuilds via the command-line, and a view of the current status of the anti-entropy system.
 - [Improved efficiency of node repairs through the `double_pair` and `repair_deferred` configuration option](https://openriak.github.io/riak_kv/OperationsAndTroubleshootingGuide.html#completing-a-repair); improving the efficiency of repairs under application load when using the leveled backend.
 - [The prompting of AAE folds via a Command Line Interface](https://openriak.github.io/riak_kv/OtherAPI.html#aae-folds-via-the-command-line); with the capability to prompt long-running folds to have results written to disk on completion.
-- [The addition of a new bucket property `aae_tree_exclude](https://openriak.github.io/riak_kv/InstallAndStartGuide.html#property---aae_tree_exclude); whereby buckets with temporary data not intended to be replicated can be excluded from cached AAE trees.
+- [The addition of a new bucket property `aae_tree_exclude`](https://openriak.github.io/riak_kv/InstallAndStartGuide.html#property---aae_tree_exclude); whereby buckets with temporary data not intended to be replicated can be excluded from cached AAE trees.
 
 From this release, [up-to-date documentation is now available](https://openriak.github.io/riak_kv/), which will be maintained by the OpenRiak community and aligned with OpenRiak releases.
 
