@@ -44,9 +44,9 @@ To make a package, install appropriate build tools for your operating system and
 
 To create a local multi-node build environment use `make devclean; make devrel`.
 
-To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test), follow [this guide for quick setup](https://github.com/OpenRiak/riak_test/doc/SIMPLE_SETUP.md).
+Up-to-date [documentation, focused on non-deprecated features, is available](https://openriak.github.io/riak/).  For documentation on legacy features and older versions, the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html) is still available.
 
-There is some historic information available in the [legacy documentation](https://docs.riak.com/riak/kv/latest/index.html).  Work on refreshing the documentation is ongoing, and in the interim further documentation is available via Riak support organisations, or in the doc folders of the riak_kv and riak_core repositories.
+To test Riak use [Riak Test](https://github.com/OpenRiak/riak_test), follow [this guide for quick setup](https://github.com/OpenRiak/riak_test/doc/SIMPLE_SETUP.md).
 
 Issues and PRs can be tracked via [Riak Github](https://github.com/OpenRiak/riak/issues) or [Riak KV Github](https://github.com/OpenRiak/riak_kv/issues).
 
