@@ -15,7 +15,7 @@ There are a number of other improvements in the release:
 
 From this release, [up-to-date documentation is now available](https://openriak.github.io/riak_kv/), which will be maintained by the OpenRiak community and aligned with OpenRiak releases.
 
-The release can be used with either OTP 24 or OTP 26, with improved performance expected when choosing OTP 26.
+The release can be used with either OTP 24 or OTP 26; with improved performance expected when choosing OTP 26, in particular when using the leveled backend and the HTTP API.
 
 To reduce maintenance overheads going forward, the release deprecates the following functionality:
 
