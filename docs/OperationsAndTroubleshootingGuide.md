@@ -314,6 +314,16 @@ All timings are internal timings, and not necessarily fully representative of ex
 
 The stats represent the statistics on the node from which they were requested.  The stats are not cluster-wide, they are always node aggregates e.g. the vnode stats are accumulated over every vnode on the node.
 
+### Vnode Status
+{: .d-inline-block }
+
+Available from Riak 3.4.1
+{: .label .label-purple }
+
+A significant proportion of the work within Riak takes places within the vnode.  To see the status of each vnode in the cluster, and see available statistics from the backend:  `riak admin vnode-status | sed -n 1p | json_pp`
+
+To look at the statistics from specific nodes or partitions see: `riak admin vnode-status --help`.
+
 ## Monitoring Operational Services
 
 ### Monitoring Anti-Entropy
@@ -641,9 +651,11 @@ A backlog of compaction work within the ledger can be monitored by tracking leve
 
 ### Garbage collecting `.bak` files in leveled
 
-The leveled backend will in some cases store work in progress during compaction, and then find that work in progress orphaned if it is interrupted by a restart before the change can be applied.  At the next restart, within the leveled ledger, such orphaned files will be renamed as `*.bak` files.  Clearing up the history of these orphaned files is a manual process.  It is always safe to delete `*.bak` files, but for extra security some users may prefer to only delete those files unmodified since before the previous start.
+The leveled backend will in some cases persist to disk work in progress during compaction, and then find that work in progress orphaned if it is interrupted by a restart before the change can be applied - there is space consumed on disk by files not referred to in the manifest for the store.  At the next restart, within the leveled ledger, such orphaned files will be renamed as `*.bak` files.
 
-The journal may also orphan files, but in Riak 3.4 there is no automated process for detecting such files and renaming them.  They can though be [detected and renamed through operator intervention](https://github.com/martinsumner/leveled/issues/444).
+<span>Available from Riak 3.4.1</span>{: .label .label-purple }As well as examining the ledger, the journal will also be checked on startup, to detect journal files present on disk but not in the manifest.  These orphaned journal files will, as with the orphaned ledger files, be renamed with a `*.bak` extension.  On releases prior to Riak 3.4.1, [detecting such files in the journal is a manual process](https://github.com/martinsumner/leveled/issues/444).
+
+Clearing up the history of these orphaned files is a manual process.  It is always safe to delete `*.bak` files, but for extra caution one may choose to only delete those files unmodified since before the previous start of Riak.
 
 ## Data inspection
 
@@ -771,7 +783,11 @@ Monitoring of activity related to these issues is important.  Further, it is vit
   - Memory used by the Riak process,
     - Low thresholds for memory should be used because of the value in over-provisioning memory, and the possibility for large requests to trigger volatile changes in memory demand.
   - Open file descriptors.
-- Utilisation limits should be monitored for trends that cluster expansion is required, due to repeated breaches of thresholds in:
+- Limits on the Erlang Virtual Machine should be monitored
+  - <span>Available from Riak 3.4.1</span>{: .label .label-purple }The [Riak stats endpoint](#riak-stats) directly reports the percentage utilisation of key virtual machine statistics.
+    - `vm_proc_percent` - controlled via the hidden configuration option `erlang.process_limit` in `riak.conf`. The underlying numbers are reported in `vm_proc_count` and `vm_proc_limit`.  The number of processes will expand with the size of the store in keys per-node - in particular when using the leveled backend - so the limit may require reconfiguration as nodes vertically scale.
+    - Also tracked are the hard limits on ports (`vm_port_percent`) and atoms (`vm_atom_percent`), and the soft limit on ETS tables (`vm_ets_percent`).  These numbers should not normally increase significantly as the key count expands.
+- Infrastructure utilisation limits should be monitored for trends that cluster expansion is required, due to repeated breaches of thresholds in:
   - Interface bandwidth.
   - CPU utilisation.
   - Disk I/O operations (especially when I/O is limited by cloud providers).
