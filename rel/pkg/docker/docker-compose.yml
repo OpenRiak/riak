@@ -1,0 +1,157 @@
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2026 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+version: '3.8'
+
+services:
+  riak-node-1:
+    image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+    container_name: riak-compose-node-1
+    hostname: riak-node-1
+    networks:
+      riaknet:
+        ipv4_address: 172.20.0.11
+    ports:
+      - "10018:10018"  # HTTP
+      - "10017:10017"  # Protocol Buffers
+      - "8881:8888"  # Admin interface
+    volumes:
+      - ./run/compose-openssl-node:/var/run/riak
+    environment:
+      - RIAK_NODE_NAME=riak@172.20.0.11
+      - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - ENABLE_TLS=${ENABLE_TLS:-false}
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/start_primary_node.sh 172.20.0.11
+      "
+
+  riak-node-2:
+    image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+    container_name: riak-compose-node-2
+    hostname: riak-node-2
+    networks:
+      riaknet:
+        ipv4_address: 172.20.0.12
+    ports:
+      - "10028:10018"  # HTTP
+      - "10027:10017"  # Protocol Buffers
+      - "8882:8888"  # Admin interface
+    volumes:
+      - ./run/compose-openssl-node:/var/run/riak
+    environment:
+      - RIAK_NODE_NAME=riak@172.20.0.12
+      - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - ENABLE_TLS=${ENABLE_TLS:-false}
+    depends_on:
+      - riak-node-1
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/start_joining_node.sh 172.20.0.12 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-3:
+    image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+    container_name: riak-compose-node-3
+    hostname: riak-node-3
+    networks:
+      riaknet:
+        ipv4_address: 172.20.0.13
+    ports:
+      - "10038:10018"  # HTTP
+      - "10037:10017"  # Protocol Buffers
+      - "8883:8888"  # Admin interface
+    volumes:
+      - ./run/compose-openssl-node:/var/run/riak
+    environment:
+      - RIAK_NODE_NAME=riak@172.20.0.13
+      - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - ENABLE_TLS=${ENABLE_TLS:-false}
+    depends_on:
+      - riak-node-1
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/start_joining_node.sh 172.20.0.13 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-4:
+    image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+    container_name: riak-compose-node-4
+    hostname: riak-node-4
+    networks:
+      riaknet:
+        ipv4_address: 172.20.0.14
+    ports:
+      - "10048:10018"  # HTTP
+      - "10047:10017"  # Protocol Buffers
+      - "8884:8888"  # Admin interface
+    volumes:
+      - ./run/compose-openssl-node:/var/run/riak
+    environment:
+      - RIAK_NODE_NAME=riak@172.20.0.14
+      - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - ENABLE_TLS=${ENABLE_TLS:-false}
+    depends_on:
+      - riak-node-1
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/start_joining_node.sh 172.20.0.14 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-5:
+    image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+    container_name: riak-compose-node-5
+    hostname: riak-node-5
+    networks:
+      riaknet:
+        ipv4_address: 172.20.0.15
+    ports:
+      - "10058:10018"  # HTTP
+      - "10057:10017"  # Protocol Buffers
+      - "8885:8888"  # Admin interface
+    volumes:
+      - ./run/compose-openssl-node:/var/run/riak
+    environment:
+      - RIAK_NODE_NAME=riak@172.20.0.15
+      - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+      - ENABLE_TLS=${ENABLE_TLS:-false}
+    depends_on:
+      - riak-node-1
+      - riak-node-2
+      - riak-node-3
+      - riak-node-4
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/start_joining_node.sh 172.20.0.15 172.20.0.11
+        /root/finalize_cluster.sh 5
+        /root/keep_running.sh
+      "
+
+networks:
+  riaknet:
+    driver: bridge
+    name: riaknet
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

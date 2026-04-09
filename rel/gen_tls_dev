@@ -1,0 +1,60 @@
+#! /bin/sh
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2025 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+# gen_tls_dev dev4 vars.src vars
+#
+# Generate an overlay config for devNNN from vars.src and write to vars.
+# This version of the script includes configurations for inter-node TLS.
+#
+
+NAME=$1
+TEMPLATE=$2
+VARFILE=$3
+
+NODE="$NAME@127.0.0.1"
+
+SCRIPT_DIR="$(dirname $0)/.."
+BUILD_ROOT="$(cd $SCRIPT_DIR && pwd -P)"
+
+NUMBER=${NAME##dev}
+BASE=$((10000 + 10 * $NUMBER))
+CM_PORT=$(($BASE + 6))
+PBPORT=$(($BASE + 7))
+WEBPORT=$(($BASE + 8))
+HANDOFFPORT=$(($BASE + 9))
+PLATFORM_BASE_DIR="$BUILD_ROOT/dev/$NAME/riak"
+PLATFORM_CERT_FILE="\"{{platform_etc_dir}}/$NAME.pem\""
+PLATFORM_CA_CERT_FILE="\"{{platform_etc_dir}}/ca.pem\""
+
+#########################################################
+##
+## Configuration
+##
+echo "Generating $NAME - node='$NODE' pbc=$PBPORT http=$WEBPORT handoff=$HANDOFFPORT TLS=True"
+sed -e "s|@PLATFORM_BASE_DIR@|$PLATFORM_BASE_DIR|" \
+    -e "s/@NODE@/$NODE/" \
+    -e "s/@PBPORT@/$PBPORT/" \
+    -e "s/@WEBPORT@/$WEBPORT/" \
+    -e "s/@CM_PORT@/$CM_PORT/" \
+    -e "s/@HANDOFFPORT@/$HANDOFFPORT/" \
+    -e "s/@DIST_TLS_ENABLED@/false/" \
+    -e "s|@DIST_TLS_CERTFILE@|$PLATFORM_CERT_FILE|" \
+    -e "s|@DIST_TLS_CACERTFILE@|$PLATFORM_CA_CERT_FILE|" < $TEMPLATE > $VARFILE

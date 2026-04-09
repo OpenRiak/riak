@@ -1,0 +1,4 @@
+# temporarily use docker branch
+# proper branch: version=openriak-3.4, url=https://github.com/OpenRiak/riak.git
+version='wday/docker'
+url=https://github.com/OpenRiak/riak.git

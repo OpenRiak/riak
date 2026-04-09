@@ -1,0 +1,13 @@
+# rebar3 shell
+ssl:start().
+SO = [ {credentials, "riakwriteclient", ""},
+	{cacertfile, "/root/rt/riak/openriak/dev/ca/riakca.ca.crt.pem"},
+	{certfile, "/root/rt/riak/openriak/dev/client/riakwriteclient.crt.pem"},
+	{keyfile, "/root/rt/riak/openriak/dev/client/riakwriteclient.key.pem"}].
+{ok, P} = riakc_pb_socket:start("127.0.0.1", 10017, SO).
+{ok, Obj} = riakc_pb_socket:get(P, <<"buc">>,<<"ky">>).
+riakc_obj:get_value(Obj).
+
+Bucket = <<"bucket_name">>.
+RObj = riakc_obj:new(Bucket, <<"test_key1">>, <<"foo">>).
+riakc_pb_socket:put(P, RObj).
