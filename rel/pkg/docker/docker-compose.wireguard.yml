@@ -1,0 +1,135 @@
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2026 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+# Docker Compose overlay for WireGuard inter-node encryption.
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.wireguard.yml up -d
+#
+# This overlay:
+#   - Adds NET_ADMIN capability for WireGuard interface creation
+#   - Mounts pre-generated WireGuard configs into each container
+#   - Overrides commands to bring up wg0 before starting Riak
+#   - Sets Riak nodenames to WireGuard IPs (10.0.0.X)
+#   - Binds EPMD to the WireGuard interface only (ERL_EPMD_ADDRESS)
+#
+# The base docker-compose.yml Docker bridge IPs (172.20.0.1X) are kept
+# as WireGuard endpoints.  Client access still works via Docker port
+# mappings (host -> container eth0 -> Riak listener on 0.0.0.0).
+#
+# Run wireguard/generate_keys.sh BEFORE compose-up to create configs.
+
+version: '3.8'
+
+services:
+  riak-node-1:
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./run/wireguard/node-1:/etc/wireguard:ro
+    environment:
+      - ENABLE_WIREGUARD=true
+      - WG_IP=10.0.0.1
+      - RIAK_NODE_NAME=riak@10.0.0.1
+      - ERL_EPMD_ADDRESS=10.0.0.1
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/setup_wireguard.sh
+        /root/start_primary_node.sh 10.0.0.1
+      "
+
+  riak-node-2:
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./run/wireguard/node-2:/etc/wireguard:ro
+    environment:
+      - ENABLE_WIREGUARD=true
+      - WG_IP=10.0.0.2
+      - RIAK_NODE_NAME=riak@10.0.0.2
+      - ERL_EPMD_ADDRESS=10.0.0.2
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/setup_wireguard.sh
+        /root/start_joining_node.sh 10.0.0.2 10.0.0.1 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-3:
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./run/wireguard/node-3:/etc/wireguard:ro
+    environment:
+      - ENABLE_WIREGUARD=true
+      - WG_IP=10.0.0.3
+      - RIAK_NODE_NAME=riak@10.0.0.3
+      - ERL_EPMD_ADDRESS=10.0.0.3
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/setup_wireguard.sh
+        /root/start_joining_node.sh 10.0.0.3 10.0.0.1 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-4:
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./run/wireguard/node-4:/etc/wireguard:ro
+    environment:
+      - ENABLE_WIREGUARD=true
+      - WG_IP=10.0.0.4
+      - RIAK_NODE_NAME=riak@10.0.0.4
+      - ERL_EPMD_ADDRESS=10.0.0.4
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/setup_wireguard.sh
+        /root/start_joining_node.sh 10.0.0.4 10.0.0.1 172.20.0.11 && /root/keep_running.sh
+      "
+
+  riak-node-5:
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./run/wireguard/node-5:/etc/wireguard:ro
+    environment:
+      - ENABLE_WIREGUARD=true
+      - WG_IP=10.0.0.5
+      - RIAK_NODE_NAME=riak@10.0.0.5
+      - ERL_EPMD_ADDRESS=10.0.0.5
+    entrypoint: []
+    command: |
+      bash -c "
+        /root/setup_wireguard.sh
+        /root/start_joining_node.sh 10.0.0.5 10.0.0.1 172.20.0.11
+        /root/finalize_cluster.sh 5
+        /root/keep_running.sh
+      "

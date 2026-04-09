@@ -28,4 +28,7 @@ sed -e "s|@PLATFORM_BASE_DIR@|$PLATFORM_BASE_DIR|" \
     -e "s/@PBPORT@/$PBPORT/" \
     -e "s/@WEBPORT@/$WEBPORT/" \
     -e "s/@CM_PORT@/$CM_PORT/" \
-    -e "s/@HANDOFFPORT@/$HANDOFFPORT/" < $TEMPLATE > $VARFILE
+    -e "s/@HANDOFFPORT@/$HANDOFFPORT/" \
+    -e "s/@DIST_TLS_ENABLED@/false/" \
+    -e "s/@DIST_TLS_CERTFILE@/undefined/" \
+    -e "s/@DIST_TLS_CACERTFILE@/undefined/" < $TEMPLATE > $VARFILE

@@ -34,6 +34,13 @@
 {logger_level, info}.
 
 %%
+%% etc/app.config - inet_tls
+%%
+{dist_tls_enabled,       @DIST_TLS_ENABLED@}.
+{dist_tls_certfile,      @DIST_TLS_CERTFILE@}.
+{dist_tls_cacertfile,    @DIST_TLS_CACERTFILE@}.
+
+%%
 %% etc/vm.args
 %%
 {node,         "@NODE@"}.

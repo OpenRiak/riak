@@ -1,0 +1,76 @@
+#! /bin/sh
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2025 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+# gen_tls_clientcerts [name] # name is optional and defaults to riakuser
+#
+# Generate TLS certificates, including creation of a CA if needed.
+# These will be for clients in order to test certificate-based authentication.
+#
+
+# set NAME to riakuser if not specified
+NAME=${1:-riakuser}
+
+SCRIPT_DIR="$(dirname $0)/.."
+BUILD_ROOT="$(cd "$SCRIPT_DIR" && pwd -P)"
+
+#########################################################
+##
+## CLIENT TLS
+##
+echo "Generating TLS client certs for $NAME"
+
+CA_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/ca"
+CSR_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/issue_csr"
+CRT_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/issue_cert"
+
+CA_NAME="riakca"
+CA_DIR="$BUILD_ROOT/dev/ca"
+CA_KEY="$CA_DIR/$CA_NAME.ca.key.pem"
+CA_CRT="$CA_DIR/$CA_NAME.ca.crt.pem"
+CA_COMBINED="$CA_DIR/$CA_NAME.pem"
+
+CLIENT_DIR="$BUILD_ROOT/dev/client"
+
+CLIENT_CSR="$CLIENT_DIR/$NAME.csr"
+
+# Check if a CA already exists
+if [ ! -f "$CA_DIR/$CA_NAME.pem" ]; then
+    echo "Creating CA"
+    mkdir -p "$CA_DIR"
+    $CA_GENERATION_SCRIPT -n $CA_NAME -o "$CA_DIR"
+    # Combine the cert and key into a single file
+    cat "$CA_CRT" "$CA_KEY" > "$CA_COMBINED"
+fi
+
+# Make sure the client directory exists
+mkdir -p "$CLIENT_DIR"
+
+# Create CSR for client
+"$CSR_GENERATION_SCRIPT" -n "$NAME" -f "$NAME" -o "$CLIENT_DIR"
+
+# Issue certificate for client
+"$CRT_GENERATION_SCRIPT" -r "$CLIENT_CSR" \
+                         -c "$CA_CRT" \
+                         -k "$CA_KEY" \
+                         -o "$CLIENT_DIR"
+
+# Remove the CSR
+rm "$CLIENT_CSR"

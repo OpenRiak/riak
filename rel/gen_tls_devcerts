@@ -1,0 +1,104 @@
+#! /bin/sh
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2025 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+# gen_tls_devcerts dev4
+#
+# Generate TLS certificates, including creation of a CA if needed.
+# Reconfigure riak.conf to listen on https.
+#
+
+NAME=$1
+NODE="$NAME@127.0.0.1"
+
+SCRIPT_DIR="$(dirname $0)/.."
+BUILD_ROOT="$(cd "$SCRIPT_DIR" && pwd -P)"
+
+PLATFORM_BASE_DIR="$BUILD_ROOT/dev/$NAME/riak"
+
+#########################################################
+##
+## TLS
+##
+echo "Generating TLS certs for $NAME"
+
+CA_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/ca"
+CSR_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/issue_csr"
+CRT_GENERATION_SCRIPT="$BUILD_ROOT/rel/security/bin/issue_cert"
+
+CA_NAME="riakca"
+CA_DIR="$BUILD_ROOT/dev/ca"
+CA_KEY="$CA_DIR/$CA_NAME.ca.key.pem"
+CA_CRT="$CA_DIR/$CA_NAME.ca.crt.pem"
+CA_COMBINED="$CA_DIR/$CA_NAME.pem"
+
+NODE_CSR="$PLATFORM_BASE_DIR/etc/$NAME.csr"
+NODE_KEY="$PLATFORM_BASE_DIR/etc/$NAME.key.pem"
+NODE_CRT="$PLATFORM_BASE_DIR/etc/$NAME.crt.pem"
+NODE_COMBINED="$PLATFORM_BASE_DIR/etc/$NAME.pem"
+
+RIAK_CONF="$PLATFORM_BASE_DIR/etc/riak.conf"
+
+# Check if a CA already exists
+if [ ! -f "$CA_DIR/$CA_NAME.pem" ]; then
+    echo "Creating CA"
+    mkdir -p "$CA_DIR"
+    $CA_GENERATION_SCRIPT -n $CA_NAME -o "$CA_DIR"
+    # Combine the cert and key into a single file
+    cat "$CA_CRT" "$CA_KEY" > "$CA_COMBINED"
+fi
+
+# Create CSR for node
+"$CSR_GENERATION_SCRIPT" -n "$NODE" -f "$NAME" -o "$PLATFORM_BASE_DIR/etc"
+
+# Issue certificate for node
+"$CRT_GENERATION_SCRIPT" -r "$NODE_CSR" \
+                         -c "$CA_CRT" \
+                         -k "$CA_KEY" \
+                         -o "$PLATFORM_BASE_DIR/etc"
+# Combine the key and cert into a single file
+cat "$NODE_CRT" "$NODE_KEY" > "$NODE_COMBINED"
+
+# Copy the CA cert to the node's etc directory
+cp "$CA_COMBINED" "$PLATFORM_BASE_DIR/etc/ca.pem"
+
+# Remove the CSR
+rm "$NODE_CSR"
+
+# reconfiguring riak.conf
+#   add ->     ssl.certfile = $(platform_etc_dir)/cert.pem
+#   add ->     ssl.keyfile = $(platform_etc_dir)/key.pem
+#   add ->     ssl.cacertfile = $(platform_etc_dir)/cacertfile.pem
+#   add ->     check_crl = off
+#   add ->     handoff.ssl.certfile = $(platform_etc_dir)/cert.pem (commented)
+#   add ->     handoff.ssl.keyfile = $(platform_etc_dir)/key.pem (commented)
+#   replace -> listener.http.internal = 127.0.0.1:100XX
+#   with ->    listener.https.internal = 127.0.0.1:100XX
+echo "Reconfiguring for TLS"
+cp "$RIAK_CONF" "$RIAK_CONF.bak"
+sed -E \
+    -e "s|listener.http.internal|listener.https.internal|" \
+    -e "s|## ssl\.keyfile.*|ssl.keyfile = ./etc/$NAME.key.pem\n\
+#handoff.ssl.keyfile = ./etc/$NAME.key.pem|" \
+    -e "s|## ssl\.certfile.*|ssl.certfile = ./etc/$NAME.crt.pem\n\
+#handoff.ssl.certfile = ./etc/$NAME.crt.pem|" \
+    -e "s|## ssl\.cacertfile.*|ssl.cacertfile = ./etc/ca.pem\ncheck_crl = off|" \
+    "$RIAK_CONF" > "$RIAK_CONF.new"
+mv "$RIAK_CONF.new" "$RIAK_CONF"

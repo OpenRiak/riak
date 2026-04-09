@@ -141,6 +141,92 @@
   merge
 ]}.
 
+%% -------------------------------------------------------------------
+%% Begin inter-node TLS options
+%%
+%% https://www.erlang.org/doc/apps/ssl/ssl_distribution.html
+%%
+%% erlang.distribution.tls.enabled: Enables TLS for inter-node communication.
+%% erlang.distribution.tls.certfile: Path to the node's certificate PEM
+%%   file containing both the server certificate and its private key.
+%% erlang.distribution.tls.cacertfile: Path to the node's CA certificate PEM
+%%   file containing both the CA certificate and its private key.
+%%
+%% -------------------------------------------------------------------
+
+%% @doc Enable TLS for inter-node communications.
+%% {commented, false},
+{mapping, "erlang.distribution.tls.enabled", "vm_args.-proto_dist", [
+  {datatype, {flag, true, false}},
+  {default, {{dist_tls_enabled}}}
+]}.
+
+{translation,
+ "vm_args.-proto_dist",
+ fun(Conf) ->
+    Setting = cuttlefish:conf_get("erlang.distribution.tls.enabled", Conf),
+    case Setting of
+      true -> " inet_tls";
+      false -> cuttlefish:unset();
+      _ -> cuttlefish:invalid("erlang.distribution.tls.enabled must be either 'true' or 'false'")
+    end
+  end
+}.
+
+%% @doc Location of a node's certificate PEM file containing both the
+%% server certificate and its private key.
+%% This is only valid if erlang.distribution.tls.enabled is true.
+%% If not needed, comment out or set to 'undefined'.
+%% {commented, "/home/me/ssl/mycertfile.pem"},
+{mapping, "erlang.distribution.tls.certfile", "vm_args.-ssl_dist_opt", [
+  {default, "{{dist_tls_certfile}}"}
+]}.
+
+%% @doc Location of a CA certificate PEM file containing both the
+%% CA certificate and its private key.
+%% This is only valid if erlang.distribution.tls.enabled is true.
+%% If not needed, comment out or set to 'undefined'.
+%% {commented, "/home/me/ssl/cacertfile.pem"},
+{mapping, "erlang.distribution.tls.cacertfile", "vm_args.-ssl_dist_opt", [
+  {default, "{{dist_tls_cacertfile}}"}
+]}.
+
+{translation,
+  "vm_args.-ssl_dist_opt",
+  fun(Conf) ->
+    case cuttlefish:conf_get("erlang.distribution.tls.certfile", Conf) of
+      U1 when U1 =:= "undefined" orelse U1 =:= undefined ->
+        cuttlefish:unset();
+      CertFile ->
+        case cuttlefish:conf_get("erlang.distribution.tls.cacertfile", Conf) of
+          U2 when U2 =:= "undefined" orelse U2 =:= undefined ->
+            "server_certfile \"" ++
+            CertFile ++
+            "\" server_secure_renegotiate true client_secure_renegotiate true";
+          CACertFile ->
+            "server_certfile \""
+            ++ CertFile
+            ++ "\" server_cacertfile \""
+            ++ CACertFile
+            ++ "\" -ssl_dist_opt server_secure_renegotiate true client_secure_renegotiate true"
+        end
+    end
+  end
+}.
+
+%% -------------------------------------------------------------------
+%% End inter-node TLS options
+%% -------------------------------------------------------------------
+
+%% -------------------------------------------------------------------
+%% Begin VM tuning options
+%%
+%% Ordered as in https://www.erlang.org/doc/man/erl#emulator-flags
+%%
+%% Many of these need to be reconfigured to override outdated defaults
+%% in the cuttlefish erlang_vm.schema file.
+%% -------------------------------------------------------------------
+
 %% @doc Riak changes the VM default wakeup interval in order to reduce the
 %% risk of scheduler collapse, prior to the availability of Dirty NIFs in
 %% later OTP versions. When using the leveled backend exclusively (either for

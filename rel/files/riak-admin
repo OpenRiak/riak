@@ -36,15 +36,12 @@ COOKIE=`egrep '^[ \t]*distributed_cookie[ \t]*=[ \t]*' $PLATFORM_ETC_DIR/riak.co
 NODE=`egrep '^[ \t]*nodename[ \t]*=[ \t]*' $PLATFORM_ETC_DIR/riak.conf 2> /dev/null | cut -d = -f 2 | tr -d ' '`
 HOST=${NODE#*@}
 
-BOOT_FILE="${PLATFORM_BASE_DIR}/releases/{{release_version}}/start_clean"
+INET_TLS=""
+if grep -Eq 'erlang.distribution.tls.enabled\s*=\s*true' $PLATFORM_ETC_DIR/riak.conf; then
+    INET_TLS="-proto_dist inet_tls -kernel logger_level error"
+fi
 
-# Function to validate the node is down
-node_down_check() {
-    if relx_nodetool "ping" > /dev/null; then
-        echo "Node is already running!"
-        exit 1
-    fi
-}
+BOOT_FILE="${PLATFORM_BASE_DIR}/releases/{{release_version}}/start_clean"
 
 usage() {
     echo "Usage: $SCRIPT { cluster | join | leave | backup | restore | test | "
@@ -825,7 +822,7 @@ case "$1" in
             else
                 SERVICES=`"${PLATFORM_BIN_DIR}/riak" rpc riak_core_node_watcher services "['${TARGETNODE}']" || :`
             fi
-            if echo "$SERVICES" | grep "[[,]$SVC[],]" > /dev/null 2>&1; then
+            if echo "$SERVICES" | grep "[[,]${SVC}[],]" > /dev/null 2>&1; then
                 echo "$SVC is up"
                 exit 0
             else
@@ -877,7 +874,7 @@ case "$1" in
 
         # OLDNODE=$1
         # NEWNODE=$2
-        # $ERTS_PATH/erl -noshell \
+        # $ERTS_PATH/erl -noshell $INET_TLS \
         #     -pa $RUNNER_LIB_DIR/basho-patches \
         #     -boot $BOOT_FILE \
         #     $CONFIG_ARGS \
@@ -900,7 +897,7 @@ case "$1" in
         NEWNODE=$2
         RINGDIR=$3
         CLUSTERNAME=$4
-        $ERTS_PATH/erl -noshell \
+        $ERTS_PATH/erl -noshell $INET_TLS \
             -pa {{platform_patch_dir}} \
             -boot $BOOT_FILE \
             -eval "riak_kv_console:$ACTION(['$OLDNODE', '$NEWNODE', '$RINGDIR', '$CLUSTERNAME'])" \
@@ -922,7 +919,7 @@ case "$1" in
         FILENAME=$3
 
         $ERTS_PATH/erl -noshell -name riak_kv_backup@$HOST -setcookie $COOKIE \
-                       -pa {{platform_patch_dir}} \
+                       -pa {{platform_patch_dir}} $INET_TLS \
                        -boot $BOOT_FILE \
                        -eval "lists:foreach(fun code:add_path/1, filelib:wildcard(\"lib/*/ebin\")),
                               riak_kv_backup:$ACTION('$NODE', \"$FILENAME\")" -s init stop
@@ -943,7 +940,7 @@ case "$1" in
         TYPE=$4
 
         $ERTS_PATH/erl -noshell -name riak_kv_backup@$HOST -setcookie $COOKIE \
-                       -pa {{platform_patch_dir}} \
+                       -pa {{platform_patch_dir}} $INET_TLS \
                        -boot $BOOT_FILE \
                        -eval "lists:foreach(fun code:add_path/1, filelib:wildcard(\"lib/*/ebin\")),
                               riak_kv_backup:$ACTION('$NODE', \"$FILENAME\", \"$TYPE\")" -s init stop
@@ -955,7 +952,7 @@ case "$1" in
         # Parse out the node name to pass to the client
 
         $ERTS_PATH/erl -noshell -name riak_test@$HOST -setcookie $COOKIE \
-                       -pa {{platform_patch_dir}} \
+                       -pa {{platform_patch_dir}} $INET_TLS \
                        -boot $BOOT_FILE \
                        -eval "lists:foreach(fun code:add_path/1, filelib:wildcard(\"lib/*/ebin\")),
                               case catch(riak:client_test(\"$NODE\")) of
@@ -970,10 +967,13 @@ case "$1" in
         RAND=$(($(($$ % 1000)) + 1))
         # Using np_etop instead of riak_etop to follow node_package convention
         $ERTS_PATH/erl -noshell -noinput \
-            -pa {{platform_patch_dir}} \
+            -pa {{platform_patch_dir}} $INET_TLS \
             -boot $BOOT_FILE \
             -hidden -name np_etop$RAND@$HOST -setcookie $COOKIE \
-            -s etop -s erlang halt -output text \
+            -eval "case code:ensure_loaded(etop) of
+                {module,_} -> etop:start();
+                _ -> io:format(\"ERROR: etop modules not available~n\") end" \
+            -s init stop -output text \
             -node $NODE \
             $* -tracing off
         ;;

@@ -1,0 +1,101 @@
+#!/bin/bash -e
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2025 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+#   A script to issue a certificate using a local CA
+#
+
+PROGRAM_NAME=$(basename $0)
+function show_help() {
+    if [ -n "${1}" ]; then
+        echo "${1}"
+    fi
+    echo "${PROGRAM_NAME} -r <csr> -c <ca_cert> -k <ca_key> -o <output_dir>"
+    echo "    <csr> path to the certificate signing request file"
+    echo "    <ca_cert> path to the CA certificate file"
+    echo "    <ca_key> path to the CA key file"
+    echo "    <output_dir> directory in which to store the output"
+    echo "Environment Variables"
+    echo "    CA_OPENSSL - location of openssl binary - default = 'openssl'"
+    echo "    CA_DAYS - age of certificate - default = '3650 (10 years)'"
+}
+
+CA_OPENSSL="${CA_OPENSSL:-openssl}"
+CA_DAYS="${CA_DAYS:-3650}"
+
+while getopts ":r:c:k:o:h" arg; do
+    case ${arg} in
+    r)
+        CSR=${OPTARG}
+        ;;
+    c)
+        CERT=${OPTARG}
+        ;;
+    k)
+        KEY=${OPTARG}
+        ;;
+    o)
+        OUT_DIR=${OPTARG}
+        ;;
+    h)
+        show_help
+        exit 0
+        ;;
+    *)
+        show_help "Invalid option: -${OPTARG}"
+        exit 1
+        ;;
+    esac
+done
+if [[ -z "${CSR}" ]]; then
+    show_help "A CSR file must be specified"
+    exit 1
+fi
+if [[ -z "${CERT}" ]]; then
+    show_help "A CA certificate file must be specified"
+    exit 1
+fi
+if [[ -z "${KEY}" ]]; then
+    show_help "A CA key file must be specified"
+    exit 1
+fi
+if [[ -z "${OUT_DIR}" ]]; then
+    show_help "An output directory must be specified"
+    exit 1
+fi
+if [[ -e ${OUT_DIR} ]]; then
+    if [[ ! -d ${OUT_DIR} ]]; then
+        show_help "<output_dir> must be a directory"
+        exit 1
+    fi
+else
+    mkdir -p ${OUT_DIR}
+fi
+
+echo "####"
+echo "#### Generating Certificate for $(basename ${CSR})"
+echo "####"
+${CA_OPENSSL} \
+    x509 -req -sha256 -CAcreateserial \
+    -in     "${CSR}" \
+    -CA     "${CERT}" \
+    -CAkey  "${KEY}" \
+    -out    "${OUT_DIR}/$(basename ${CSR/%csr/crt}).pem" \
+    -days   ${CA_DAYS}
