@@ -19,6 +19,8 @@
 {handoff_port,      8090}.
 {pb_ip,             "127.0.0.1"}.
 {pb_port,           8081}.
+{admin_api_ip,      "0.0.0.0"}.
+{admin_api_port,    8084}.
 {storage_backend,   "yessir"}.
 {ring_state_dir,    "{{platform_data_dir}}/ring"}.
 {bitcask_data_root, "{{platform_data_dir}}/bitcask"}.

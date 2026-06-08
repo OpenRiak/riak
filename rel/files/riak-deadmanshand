@@ -1,0 +1,29 @@
+#!/bin/sh
+
+p=$(pwd)
+
+if [ -z "{{pid_dir}}" ]; then
+    ## this is locally built rel or devrel
+    b=$(cd $(dirname "$0")/.. && pwd -P)
+    d=$b
+    cd $b
+else
+    ## packaged
+    d={{pid_dir}}
+    ## no cd: platform_bin_dir is absolute
+fi
+
+while true; do
+      sleep 3
+      if [ -r $d/RESTART_RIAK ]; then
+          {{platform_bin_dir}}/riak stop
+          {{platform_bin_dir}}/riak start
+          rm -f $d/RESTART_RIAK
+      fi
+      if [ -r $d/STOP_SELF ]; then
+          rm -f $d/STOP_SELF
+          break
+      fi
+done
+
+cd $p

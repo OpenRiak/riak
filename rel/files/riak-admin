@@ -51,6 +51,7 @@ usage() {
     echo "                    reip | reip_manual | erl-reload | wait-for-service | "
     echo "                    ringready | transfers | force-remove | down |"
     echo "                    cluster-info | member-status | ring-status | vnode-status |"
+    echo "                    admin-api <subcommand> |"
     echo "                    tictacaae <subcommand> |"
     echo "                    aae-status | diag | stat | status | transfer-limit | reformat-indexes |"
     echo "                    top [-interval N] [-sort reductions|memory|msg_q] [-lines N] |"
@@ -623,6 +624,11 @@ tictacaae_admin()
     rpc riak_kv_console command $SCRIPT tictacaae "$@"
 }
 
+admin_api_admin()
+{
+    rpc riak_admin_api_console command $SCRIPT "admin-api" "$@"
+}
+
 
 
 # Check the first argument for instructions
@@ -1038,6 +1044,10 @@ case "$1" in
     tictacaae)
         shift
         tictacaae_admin "$@"
+        ;;
+    admin-api)
+        shift
+        admin_api_admin "$@"
         ;;
     *)
         usage

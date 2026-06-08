@@ -20,6 +20,7 @@ CM_PORT=$(($BASE + 6))
 PBPORT=$(($BASE + 7))
 WEBPORT=$(($BASE + 8))
 HANDOFFPORT=$(($BASE + 9))
+ADMINAPIPORT=$((BASE + 4))
 PLATFORM_BASE_DIR="$BUILD_ROOT/dev/$NAME/riak"
 
 echo "Generating $NAME - node='$NODE' pbc=$PBPORT http=$WEBPORT handoff=$HANDOFFPORT"
@@ -27,5 +28,6 @@ sed -e "s|@PLATFORM_BASE_DIR@|$PLATFORM_BASE_DIR|" \
     -e "s/@NODE@/$NODE/" \
     -e "s/@PBPORT@/$PBPORT/" \
     -e "s/@WEBPORT@/$WEBPORT/" \
+    -e "s/@ADMINAPIPORT@/$ADMINAPIPORT/" \
     -e "s/@CM_PORT@/$CM_PORT/" \
     -e "s/@HANDOFFPORT@/$HANDOFFPORT/" < $TEMPLATE > $VARFILE

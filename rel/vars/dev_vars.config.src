@@ -26,6 +26,8 @@
 {handoff_port,      @HANDOFFPORT@}.
 {pb_ip,             "127.0.0.1"}.
 {pb_port,           @PBPORT@}.
+{admin_api_ip,      "0.0.0.0"}.
+{admin_api_port,    @ADMINAPIPORT@}.
 {storage_backend,   "bitcask"}.
 {sasl_error_log,    "{{platform_log_dir}}/sasl-error.log"}.
 {sasl_log_dir,      "{{platform_log_dir}}/sasl"}.
