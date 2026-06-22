@@ -601,6 +601,36 @@ Remember the `range_check` queries will only run if either: the last check on th
 
 The aae_fold `repl_keys_range` will replicate any key within the defined range to the clusters consuming from a defined queue.  See the [AAE fold API documentation](./OtherAPI.md#aae-fold-api) for more information on using `repl_key_range`.
 
+### Re-Sync a Bucket
+
+Full-sync reconciliation is designed to be fast and efficient for confirming that clusters are in sync, but is relatively slow to resolve deltas between clusters.  The common case, when the delta is associated with a recent window of last-modified-dates (e.g. due to a recent temporary failure of replication or nodes) is optimised through the `auto_check` process; and also [re-replication](#re-replicating-keys-for-a-given-time-period) may be used to accelerate this.  However, if the delta is not restricted to a given time range of modified dates, and the delta is large, there is a need for alternative intervention to close the delta in a timely manner.
+
+For small buckets (in terms of object count), simply re-replicating the bucket could be the easiest solution, especially where it is clear the replication failure is uni-directional.  For larger buckets, and for handling bi-directional deltas, then it is possible to manually intervene to re-sync a bucket.
+
+The re-sync can be triggered from any node, from either cluster - assuming that bi-directional replication is configured.  The re-sync is cluster-wide, it is not a re-sync of data local to the node. The re-sync can handle, as with other nextgenrepl features, clusters with different configurations (e.g. `n_val` settings).
+
+A bucket re-sync will suspend the local full-sync process on the node from which it is triggered, and roll through segment slices of the bucket performing bucket-specific `range_check` operations.  As each loop covers only a single slice of the segment space, this is much quicker to repair than the standard full-sync per-bucket check, which needs to read the whole bucket space to build AAE trees for comparison.
+
+The re-sync bucket can be called via [remote_console](./OperationsAndTroubleshootingGuide.md#remote-console):
+
+```console
+riak_client:resync_bucket({<<"BucketType">>, <<"BucketName">>}).
+```
+
+Or, for untyped buckets:
+
+```console
+riak_client:resync_bucket(<<"BucketName">>).
+```
+
+{ .highlight }
+> In small buckets, of o(10m) keys, it would be normal to have a bucket resync operation repair deltas at a rate exceeding 1,000 per second.  
+
+As well as the helper function in `riak_client`, there is a configurable `riak_kv_ttaaefs_manager:resync_bucket/6` function exported.  For much larger buckets, this configurable version can be used to optimise the process e.g. use a smaller width (the size of the slice of the segment space), fix a specific key range or within a modified date range.
+
+{ .note }
+> It is possible to have multiple nodes running resync_bucket concurrently - to sync different buckets, or different key ranges within a bucket.  The limiting factor to horizontal scaling of resync_bucket is usually the size of [AF3 worker pool](./OtherAPI.md#node-worker-pools).  Once all workers in the pool are continuously busy, no further scaling can be achieved, without running larger pools (on all clusters).
+
 #### Participate in Coverage
 
 The full-sync comparisons between clusters are based on coverage plans - a plan which returns a set of vnode to give r=1 coverage of the whole cluster.  When a node is known not to be in a good state (perhaps following a crash), it can be rejoined to the cluster, but made ineligible for coverage plans by using the `participate_in_coverage` configuration option.

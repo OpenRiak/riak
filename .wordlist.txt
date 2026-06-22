@@ -73,6 +73,7 @@ ttaaefs
 aaefold
 quickdocs
 keyname
+resync
 
 # Riak configuration terms
 cacert
@@ -199,6 +200,7 @@ af
 be
 ef
 config
+ETag
 
 # Erlang/OTP
 erlang
@@ -400,68 +402,3 @@ gDdw
 kZXYxQDEyNy
 wLjAuMVh
 xAAAMdwAAAABpPGQWbQAAAARkjfJI
-
-# Release notes
-ACKs
-Args
-Datacentre
-Dushin's
-EE
-FreeBSD
-GSet
-GSets
-Graviton
-HDDs
-IPv
-MDC
-Makefile
-NHS
-OTP's
-UseStringCache
-Yokozuna
-args
-backfill
-badarg
-brops
-busywait
-calc
-cmake
-configurability
-deps
-dirtycpu
-dirtyio
-dt
-dtrace
-ebloom
-eheap
-enoent
-eper
-eqc
-eunit
-exometer
-flappy
-fsm
-fssink
-fssource
-gset
-gsets
-hamcrest
-httpd
-ibrowse
-js
-jvm
-leveled's
-phash
-recalc
-redbug
-repos
-sidejob
-solr
-sys
-syslog
-tictactree
-tunables
-utils
-yokozuna
-PRs
-roadmap
