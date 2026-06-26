@@ -8,10 +8,11 @@ This minor release makes the following external changes from [Riak KV 3.4.0](#ri
 - The addition of [the `riak admin vnode-status` command](https://openriak.github.io/riak/OperationsAndTroubleshootingGuide.html#vnode-status) to view operational statistics about vnodes and their backends from across the cluster.
 - An improvement to the automatic identification of [unused files in the leveled backend](https://openriak.github.io/riak/OperationsAndTroubleshootingGuide.html#garbage-collecting-bak-files-in-leveled), so that unused journal files are now recognised at startup as well as unused ledger files.
 - The addition of [virtual machine statistics](https://openriak.github.io/riak/OperationsAndTroubleshootingGuide.html#operation-checklist) to the stats endpoint, so that those statistics can be tracked against their limits.
+- The addition of a new helper function [to resync a bucket](https://openriak.github.io/riak/ReplicationGuide.html#re-sync-a-bucket), and optimisations to `nextgenrepl` reconciliation to allow for accelerated resolution of large deltas without re-replicating whole buckets.
 
 The release includes a number of fixes, test improvements and internal changes.  The full list of changes can be seen in the [project status board](https://github.com/orgs/OpenRiak/projects/4/views/2?filterQuery=-status%3ATodo%2CAssigned%2C%22In+Progress%22%2C%22Ready+For+Review%22%2C%22Review+In+Progress%22%2C%22Deferred+to+3.4.2%22).
 
-The release can be used with either OTP 24 or OTP 26; with improved performance expected when choosing OTP 26.
+The release can be used with either OTP 24 or OTP 26; with improved performance possible when choosing OTP 26.
 
 ## Riak KV 3.4.0 Release Notes
 
