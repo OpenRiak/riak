@@ -63,7 +63,7 @@ To create a local release, run `make rel`.  This will build a release of Riak in
 
 #### Local cluster
 
-To create a local cluster, which is ideal for experimenting with Riak, run `make devclean; make devrel`.  This will clean and rebuild a group of 8 Riak instances in the `dev/dev<n>` folder within the repository clone.
+To create a local development cluster, which is ideal for experimenting with Riak, run `make devclean; make devrel`.  This will clean and rebuild a group of 8 Riak instances in the `dev/dev<n>` folder within the repository clone.
 
 #### Generating a package
 
@@ -82,9 +82,13 @@ Organisations within the OpenRiak community do offer pre-built packages as part 
 
 ## Starting Riak
 
-Riak is deployed using [a modified version of the relx release generator](https://github.com/erlware/relx), and inherits its control commands.
+### Starting Riak by Make Method
 
-For locally deployed instances (i.e. via `make rel` or `make devrel`), can be controlled using the `bin/riak` script:
+Starting Riak changes depending on how Riak was made - a [local release](#local-release) or [local development cluster](#local-cluster), or through [package deployment](#package-deployment).  In all cases Riak is released using [the relx release generator](https://rebar3.org/docs/deployment/releases/), and inherits the control commands from the `relx` extended start script; but the location and method for accessing that script will vary.
+
+#### Local Release or Cluster
+
+For locally deployed instances (i.e. via `make rel` for a single node or `make devrel` for a development cluster), nodes can be controlled using the `bin/riak` script:
 
 ```console
 bin/riak daemon
@@ -92,8 +96,15 @@ bin/riak ping
 bin/riak stop
 ``` 
 
+The location of the `bin` directory will depend on whether `make rel` or `make devrel` has been used to create the Riak release.  By default `make rel` will copy the release into the `rel/riak` folder in the base folder to which Riak was cloned - so the control script can be found at `rel/riak/bin/riak`.  For clusters generated with `make devrel`, the make process will create `n` multiple nodes under `dev/dev{n}/riak` in the base folder.  Those nodes are independent until [they are joined into a cluster](./BuildAndScaleClusterGuide.md#forming-and-expanding-a-riak-cluster).
+
 {: .note }
-> The `bin/riak start` command is now deprecated, use `daemon` or `foreground` as appropriate.
+> Under `riak`, there should be `bin`, `data`, `log` and `etc` folders.  The location of the `data` and `log` folders can be changed using the `platform.data_dir` and `platform.log_dir` in `etc/riak.conf`.
+
+{: .warning }
+> The `bin/riak start` command which was used in Riak 3.0 and earlier releases is now deprecated.
+>
+> From Riak 3.2.0 use `daemon` to start Riak, or `foreground` to start with output redirected to `stdout`.
 
 Help for further console activities can be found via:
 
@@ -103,6 +114,8 @@ bin/riak admin --help
 bin/riak admin cluster --help
 ``` 
 
+#### Package Deployment
+
 For instances deployed through packages, startup and shutdown should be controlled using `systemd` e.g.:
 
 ```console
@@ -111,12 +124,17 @@ service riak ping
 service riak stop
 ```
 
-Help for further console activities can be found by using the standard `riak` script e.g. `sudo riak admin --help`
+Help for further console activities can be found by using the standard `riak` script e.g. `sudo riak admin --help`.
+
+{: .note }
+> The default location of `bin`, `data`, `log` and `etc` folders following package deployment, should follow standard conventions for that operating system.  For example, on Ubuntu the configuration can be found in `/etc/riak/riak.conf`, and other paths are described within that file.
+
+#### Setting ulimit
 
 {: .warning }
 > Running Riak may require a much higher `ulimit` than the default set by the Operating System.
 
-A `ulimit` of 100000 will be acceptable for small-scale non-production systems, but larger limits will be needed for full-scale production systems.  When Riak is installed as a package, then the default limit is increased using the `LimitNOFILE` file option within the systemd service definition.
+A `ulimit` of 100000 will be acceptable for small-scale non-production systems, but larger limits will be needed for full-scale production systems.  When Riak is installed as a package, then the default limit is increased using the `LimitNOFILE` file option within the systemd service definition.  For local deployments, the ulimit should be modified for the user starting the riak application.
 
 ### Configuration of Riak - key riak.conf changes
 

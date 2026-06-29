@@ -73,6 +73,7 @@ ttaaefs
 aaefold
 quickdocs
 keyname
+resync
 
 # Riak configuration terms
 cacert
@@ -147,6 +148,7 @@ repairfun
 foldresult
 jobid
 rtrq
+dataroot
 
 # Riak monitoring terms
 nosync
@@ -198,6 +200,7 @@ af
 be
 ef
 config
+ETag
 
 # Erlang/OTP
 erlang
@@ -222,6 +225,7 @@ erlef
 eval
 priv
 env
+proc
 
 # Computing terminology
 incast
@@ -262,6 +266,9 @@ yymmdd
 yyyymmdd
 xput
 endraw
+stdout
+sed
+json_pp
 
 # Product names
 debian
@@ -389,6 +396,12 @@ subproc
 lz
 edates
 unsync'd
+DmRldjFAMTI
+LjAuMC
+gDdw
+kZXYxQDEyNy
+wLjAuMVh
+xAAAMdwAAAABpPGQWbQAAAARkjfJI
 
 # Release notes
 ACKs

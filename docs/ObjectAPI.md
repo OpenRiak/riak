@@ -42,12 +42,12 @@ The Riak object Identifier is split into three parts:
 - Bucket;
 - Key.
 
-Internally within Riak all three elements are binary identifiers,  With the Object HTTP API these elements are represented within the URL e.g. `/types/BucketType/buckets/Bucket/keys/Key`.
+Internally within Riak all three elements are binary identifiers.  With the Object HTTP API, these elements are represented within the URL e.g. `/types/<BucketType>/buckets/<Bucket>/keys/<Key>`.
 
 {: .warning }
-> Although it is possible to use non-URL-safe identifiers using the Protocol Buffer API, it is important not to do so - as any object using a non-URL safe identifier will not be accessible via the HTTP API, as there is no encoding of non-Alphanumeric identifier parts.
+> Although it is possible to use identifiers that are not URL-safe through the Protocol Buffer API, it is important not to do so - as any object using such an identifier may not be accessible via the HTTP API.  Guidelines for the safe use of Unicode in cross-API identifiers, will be clarified in a future Riak release.
 
-The [Bucket Type](./InstallAndStartGuide.md#configuration-of-riak---bucket-properties) is used to describe the properties of the object.  Properties are associated with a Bucket Type, and all Objects in the Buckets under that type will inherit those properties. The Bucket is a namespace, and a Bucket Type is allowed to have an arbitrary number of Buckets.  A Bucket cannot be moved between Bucket Types, but the properties of an individual Bucket may be changed to override that of the Bucket Type.  Keys are unique identifiers of an object within a Bucket.
+The [Bucket Type](./InstallAndStartGuide.md#configuration-of-riak---bucket-properties) is used to describe the properties of the object.  Properties are associated with a Bucket Type, and all Objects in the Buckets under that type will inherit those properties.
 
 A Bucket Type cannot be used via the API until it has been created and activated, to do this see:
 
@@ -55,18 +55,22 @@ A Bucket Type cannot be used via the API until it has been created and activated
 riak admin bucket-type --help
 ```
 
-It is preferable to set the properties of a Bucket Type before using it.
+The Bucket is a namespace, and a Bucket Type is allowed to have an arbitrary number of Buckets.  A Bucket cannot be moved between Bucket Types, but the properties of an individual Bucket may be changed to override that of the Bucket Type.
+
+Keys are unique identifiers of an object within a Bucket.
 
 ## Object Value - the request body
 
-Within Riak, object values are generally opaque to Riak.  The schema of the value is managed by the application, not by Riak.  Values are normally binaries, but a content-type can be passed by the user and associated with the value - and any content type can be used, as Riak will not read the value it will store it.
+Within Riak, object values are generally opaque to the database code.  The schema of the value is managed by the application, not by Riak.  Values are normally binaries, but a content-type can be passed via the API and associated with the value (as a standard 'Content-Type' request header in a PUT or POST).  The provided 'Content-Type' will be stored in Riak as object metadata, and returned in future fetch requests as a standard 'Content-Type' response header.  Riak does not validate that the object value is a match for the content type provided.
 
-Riak is not optimised for small values, although there is no lower limit to the size of the value.
+If a content type is not provided, the value will be assumed to be a binary i.e. `application/octet-stream`.
+
+The size of the values is managed by the application, not the database; there is no auto-sharding of inbound values.  There is a small overhead associated with every object, and so Riak is not optimised for handling large numbers of very small values.  There is no upper limit to the number of unique objects that can be stored - but internal operations, especially inter-cluster reconciliation, have reduced efficiency when the count of objects greatly exceeds 10 billion.
 
 {: .note }
 > Typically values stored in Riak are between o(1KB) and o(1MB) in size, but are not constrained by these limits.
 
-To Riak object values are generally opaque, but Riak does have support for [data-types](./OtherAPI.md#the-data-type-api); specially formatted values where the handling of conflict is deterministic and managed within the database, so the application does not see siblings even though [`allow_mult` is set to `true`](./InstallAndStartGuide.md#property---allow_mult).
+In standard Riak operations the database does not require knowledge of the structure of the value, however Riak does have support for [data-types](./OtherAPI.md#the-data-type-api). These types, [also referred to as CRDTs](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type), are specially formatted values where the handling of conflict is deterministic and managed within the database, so the application does not see siblings even when [`allow_mult` is set to `true`](./InstallAndStartGuide.md#property---allow_mult) and concurrent changes are made to the same object.  The performance and scalability of Riak is improved when values are externally managed, rather than internally constrained through the use of these types.
 
 ## Object Meta Content - the request and response headers
 
@@ -111,7 +115,7 @@ If an object results in an unresolved conflict, the index entries for the object
 
 The GET and PUT API allow for options to be passed in the HTTP API via [HTTP query parameters appended to the URI](https://www.rfc-editor.org/rfc/rfc3986#section-3.4).
 
-It is recommended that the options supported in the Object API should be set via [bucket properties](./InstallAndStartGuide.md#configuration-of-riak---bucket-properties) wherever possible (except where the option is a per-request option rather than a property e.g. `vtag`).  It is best practice to define the expectations for managing a request within the properties of the type, and only use options to override those definitions.
+It is recommended that the options supported in the Object API should be set via [bucket properties](./InstallAndStartGuide.md#configuration-of-riak---bucket-properties) wherever possible (except where the option is a per-request option rather than a property e.g. `vtag`).  It is best practice to define the expectations for managing a request within the properties of the type, and only use options in exceptional cases to override those definitions.
 
 The most common options used are:
 
@@ -175,17 +179,19 @@ There are three scenarios where the conditional check will be weakened:
 
 - The token granting system uses an internal queue method, and requests made whilst the token has been currently granted will be notified to re-request for a grant when it is their turn for the grant.  So sending multiple requests in parallel will generally result in one update succeeding, and then all other parallel requests failing due to the precondition check in rapid succession as they gain ownership of the token when the previous request releases.  There is though a timeout, beyond which a process will not wait, and on timeout a process will revert to an `api_only` check.
 - The token granting system is enforced as **an honesty system**, it is the role of the application to ensure that all objects that require token protection have conditions added to update requests.  Updates without condition checks will be accepted in parallel to updates with condition checks, and there may be unresolved conflicts as a consequence.
-- When using multi-data centre replication, there is no cross-checking between clusters before granting tokens.  If running multiple clusters in active/active mode, then token consensus offers no protection against parallel writes, unless there is natural isolation within the application (should objects have a natural association with a region that would make inter-cluster concurrent writes unexpected).
+- When using multi-data centre replication, there is no cross-checking between clusters before granting tokens.  If running multiple clusters in active/active mode, then token consensus offers no protection against parallel writes, unless there is natural isolation within the application (e.g. should objects have a natural association with a region that would make inter-cluster concurrent writes unexpected).
 
-Stronger conditional updates can be made via either API through the use of "if_none_match" and the Riak-bespoke "if_not_modified" headers (or options in the case of the PB API).  Use of the HTTP-standard "if_not_modified" header or of the "if_match" header will result only in weak `api_only` checks, and is not fully supported.
+Stronger conditional updates can be made via either API through the use of "if-none-match" and the Riak-bespoke "if-not-modified" headers (or options in the case of the PB API).  Use of the HTTP-standard "if-unmodified-since" header or of the "if-match" header will result only in weak `api_only` checks, and is not fully supported.
 
-### Use of Request Header - If_None_Match
+### Use of Request Header - If-None-Match
 
-The use of if_none_match is tested on update operations only.  It uses the standard HTTP request header, but ignores the value - setting the request header to any content will be treated as `if_none_match: *`.  The purpose of if_none_match is simply to check that there is no object present before accepting the update.
+The use of if-none-match is tested on update operations only.  It uses the standard HTTP request header, but ignores the value - setting the request header to any content will be treated as `if-none-match: *`.  The purpose of if-none-match is simply to check that there is no object present before accepting the update.
 
-### Use of Request Header - If_Not_Modified (non-standard Riak header)
+### Use of Request Header - X-Riak-If-Not-Modified (non-standard Riak header)
 
-The use of if_not_modified varies from the standard behaviour of the if_not_modified HTTP request.  For Riak the `x-riak-if_not_modified` header should be used as a modification check, and the value of the header should be set to the encoded version vector that had been read prior to the update.  The PUT will then be conditional on the object being at this state before the change is applied.
+The use of `X-Riak-If-Not-Modified` varies from the standard behaviour of the `If-Unmodified-Since`/`If-Match` HTTP request.  For Riak the `X-Riak-If-Not-Modified` header should be used as a modification check, and the value of the header should be set to the encoded version vector that had been read prior to the update.  The PUT will then be conditional on the object being at this state before the change is applied.
+
+For the standard HTTP headers, [`If-Unmodified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-Unmodified-Since) checks on the last-modified date, but this is not a sufficiently accurate check in Riak.  This option may be ignored in future releases.  The [`If-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-Match) header matches against the ETag of an object, however in Riak due to siblings, an object may have multiple tags (ETag in HTTP is mapped to vtag in the Riak object space).  The use of `If-Match` is not recommended, and will be clarified in a future release.
 
 ### Conditional requests and latch objects
 
@@ -203,9 +209,9 @@ Store requests should be sent using the `PUT` method, although the `POST` method
 
 Supported HTTP request headers for PUT:
 
-- `x-riak-vclock`; should be provided when mutating existing objects, should be the contents of the object read prior to update.
-- `x-riak-if_not_modified`; optional, for conditional requests.
-- `if_none-match: *`; optional, for conditional requests.
+- `x-riak-vclock`; should be provided when mutating existing objects, should be set to the value of the `x-riak-vclock` response header of the object, as read prior to update.  If a new object is being inserted, then no `x-riak-vclock` request header should be provided.  The content of the clock is encoded within the header value, the application is not required to decode that value, but to simply pass it as-is to provide context information for the update to Riak.
+- `x-riak-if-not-modified`; optional, for conditional requests.
+- `if-none-match: *`; optional, for conditional requests.
 - `authorization`; optional, for tls-protected requests only when [Riak security is enabled](./OperationsAndTroubleshootingGuide.md#enabling-riak-security).
 - `x-riak-meta-<key>: <value>`; optional, multiple keys may be provided, and will be mapped to user metadata.
 - `x-riak-index-<field> : <value1>, <value2>`; optional add multiple index fields, with multiple values in each field where those values are comma (and whitespace) separated.  Index fields should have the suffix `_bin` or `_int`.
@@ -236,7 +242,7 @@ Supported HTTP request headers for GET:
 
 Expected HTTP response headers for GET:
 
-- `x-riak-vclock`; an encoded representation of the version_vector, must be provided in an update message to indicate which version of the object is to be updated.
+- `x-riak-vclock`; an encoded representation of the version_vector, must be provided in any subsequent update message to indicate which version of the object is to be updated.
 - `x-riak-meta-<key>: <value>`; potentially multiple headers representing the user metadata for the object.
 - `x-riak-index-<field> : <value1>, <value2>`; potentially multiple headers representing the current index values for the object.
 - `content-type: <content_type>`; the content-type provided when the object was stored.
@@ -258,8 +264,8 @@ Without providing version information, the delete will first read the current ve
 Supported HTTP request headers for DELETE:
 
 - `x-riak-vclock`; see above.
-- `x-riak-if_not_modified`; optional, for conditional requests.
-- `if_none-match: *`; optional, for conditional requests.
+- `x-riak-if-not-modified`; optional, for conditional requests.
+- `if-none-match: *`; optional, for conditional requests.
 - `authorization`; optional, for tls-protected requests only when Riak security is enabled.
 
 ### Example DELETE request
