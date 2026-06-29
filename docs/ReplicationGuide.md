@@ -623,12 +623,12 @@ Or, for untyped buckets:
 riak_client:resync_bucket(<<"BucketName">>).
 ```
 
-{ .highlight }
+{: .highlight }
 > In small buckets, of o(10m) keys, it would be normal to have a bucket resync operation repair deltas at a rate exceeding 1,000 per second.  
 
 As well as the helper function in `riak_client`, there is a configurable `riak_kv_ttaaefs_manager:resync_bucket/6` function exported.  For much larger buckets, this configurable version can be used to optimise the process e.g. use a smaller width (the size of the slice of the segment space), fix a specific key range or within a modified date range.
 
-{ .note }
+{: .note }
 > It is possible to have multiple nodes running resync_bucket concurrently - to sync different buckets, or different key ranges within a bucket.  The limiting factor to horizontal scaling of resync_bucket is usually the size of [AF3 worker pool](./OtherAPI.md#node-worker-pools).  Once all workers in the pool are continuously busy, no further scaling can be achieved, without running larger pools (on all clusters).
 
 #### Participate in Coverage

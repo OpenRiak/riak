@@ -129,7 +129,7 @@
   2},
  {<<"riak_kv">>,
   {git,"https://github.com/OpenRiak/riak_kv",
-       {ref,"9666f63a7c57789b2b091730014785c7377950e3"}},
+       {ref,"48285d5d7aa72c4167e338b3d28ae9ba434cfcb7"}},
   0},
  {<<"riak_logger">>,
   {git,"https://github.com/OpenRiak/riak_logger",
