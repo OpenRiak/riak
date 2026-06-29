@@ -51,7 +51,7 @@ usage() {
     echo "                    reip | reip_manual | erl-reload | wait-for-service | "
     echo "                    ringready | transfers | force-remove | down |"
     echo "                    cluster-info | member-status | ring-status | vnode-status |"
-    echo "                    tictacaae <subcommand> |"
+    echo "                    tictacaae <subcommand> | node <subcommand> |"
     echo "                    aae-status | diag | stat | status | transfer-limit | reformat-indexes |"
     echo "                    top [-interval N] [-sort reductions|memory|msg_q] [-lines N] |"
     echo "                    downgrade-objects | security | bucket-type | repair-2i |"
@@ -619,8 +619,11 @@ The follow commands can be used to manage bucket types for the cluster:
 
 tictacaae_admin()
 {
-    # this command will print usage in erlang code
     rpc riak_kv_console command $SCRIPT tictacaae "$@"
+}
+node_admin()
+{
+    rpc riak_kv_console command $SCRIPT node "$@"
 }
 
 
@@ -1038,6 +1041,10 @@ case "$1" in
     tictacaae)
         shift
         tictacaae_admin "$@"
+        ;;
+    node)
+        shift
+        node_admin "$@"
         ;;
     *)
         usage
