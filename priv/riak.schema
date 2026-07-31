@@ -71,8 +71,8 @@
 %% @doc The maximum size of a single log file. Total size used for log files will 
 %% be max_file_size * max_files.
 {mapping, "logger.max_file_size", "kernel.logger", [
-  {default, "1MB"},
-  {datatype, bytesize}
+  {default, "10MB"},
+  {datatype, [{atom, infinity}, bytesize]}
 ]}.
 
 %% @doc Default filters
