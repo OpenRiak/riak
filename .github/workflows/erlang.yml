@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - uses: lukka/get-cmake@latest
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install Erlang/OTP
         uses: erlef/setup-beam@v1
         with:
