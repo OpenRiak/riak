@@ -88,17 +88,17 @@ expected_default_handler_config() ->
             default,
             logger_std_h,
             #{
-                config => 
+                config =>
                     #{
                         file => "./log/console.log",
                         file_check => 100,
-                        max_no_bytes => 1048576,
+                        max_no_bytes => 10485760,
                         max_no_files => 10
                     },
                 level => all,
                 filter_default => log,
                 filters => [],
-                formatter => 
+                formatter =>
                     {
                         logger_formatter,
                         #{
