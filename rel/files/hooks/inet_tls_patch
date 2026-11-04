@@ -1,0 +1,135 @@
+#!/bin/sh
+# -*- tab-width:4;indent-tabs-mode:nil -*-
+# ex: ts=4 sw=4 et
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2025 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+#
+#   Patch some riak scripts to work properly with inet_tls
+#   This is done to avoid reading the TLS warning that gets printed to stdout.
+#
+
+RIAK="{{platform_bin_dir}}/riak"
+INST_UP_ESCRIPT="{{platform_bin_dir}}/install_upgrade.escript"
+OBSERVER_CLI_ESCRIPT="{{platform_bin_dir}}/observer_cli"
+RIAK_CONF="{{platform_etc_dir}}/riak.conf"
+PATCHED="false"
+
+# first, look in at the config file for the string
+# "erlang.distribution.tls.enabled = true"
+# if present, then inet_tls is enabled, so we need to patch the scripts.
+
+if grep -Eq 'erlang.distribution.tls.enabled\s*=\s*true' ${RIAK_CONF}; then
+    # check if the script has been patched by checking for the presence of the
+    # string "inet_tls_patch_done"
+    if ! grep -q inet_tls_patch_done "$RIAK"; then
+        #echo "Patching riak script"
+        # look for the string "-dist_listen false" in the script and replace it with
+        # "-kernel logger_level error -dist_listen false"
+        # first, create a backup of the original script
+        cp -f $RIAK $RIAK.unpatched
+        sed -i -e \
+        's/-dist_listen false/-kernel logger_level error -dist_listen false/' \
+        "$RIAK"
+        # add a string "inet_tls_patch_done" to the script to indicate that it has
+        # been patched
+        echo "#inet_tls_patch_done" >> $RIAK
+        PATCHED="true"
+    fi
+
+    # check if the escript has been patched by checking for the presence of the
+    # string "inet_tls_patch_done"
+    if ! grep -q inet_tls_patch_done "$INST_UP_ESCRIPT"; then
+        #echo "Patching install_upgrade.escript"
+        # look for the line "%%! -noinput" and replace it with
+        # "%%! -noinput -proto_dist inet_tls -kernel logger_level error"
+        # first, create a backup of the original escript
+        cp -f $INST_UP_ESCRIPT $INST_UP_ESCRIPT.unpatched
+        sed -i -e \
+        's/%%! -noinput/%%! -noinput -proto_dist inet_tls -kernel logger_level error/' \
+        "$INST_UP_ESCRIPT"
+        # add a string "inet_tls_patch_done" to the escript to indicate that it has
+        # been patched
+        echo "%inet_tls_patch_done" >> $INST_UP_ESCRIPT
+        PATCHED="true"
+    fi
+
+    # check if the observer_cli escript has been patched by checking
+    # for the presence of the string "inet_tls_patch_done"
+    # first make sure that the escript exists
+    if [ -e $OBSERVER_CLI_ESCRIPT ]; then
+        if ! grep -q inet_tls_patch_done "$OBSERVER_CLI_ESCRIPT"; then
+            #echo "Patching observer_cli escript"
+            # this is a compiled escript, so we need to use a different method
+            # to patch it. we will use the erl command to decompile the escript
+            # to a text file, then patch the text file, and then recompile it
+            # back to a binary escript.
+            # first, create a backup of the original escript
+            cp -f $OBSERVER_CLI_ESCRIPT $OBSERVER_CLI_ESCRIPT.unpatched
+            "$ERTS_DIR/bin/erl" -noshell \
+                -boot "$REL_DIR/start_clean" -eval \
+                "{ok,Contents}=escript:extract(\"$OBSERVER_CLI_ESCRIPT\",[]), \
+                Contents2 = lists:keyreplace(emu_args,1,Contents, \
+                    {emu_args,\"-escript main observer_cli_escriptize \
+                    -proto_dist inet_tls -hidden +sbtu \
+                    +A0 -elixir ansi_enabled true\"}), \
+                Contents3 = lists:keyreplace(comment,1,Contents2,{comment, \
+                    \"inet_tls_patch_done\"}), \
+                escript:create(\"$OBSERVER_CLI_ESCRIPT\", Contents3)." \
+                -s init stop
+            PATCHED="true"
+        fi
+    fi
+
+    # Update environment variables
+
+    # force use of nodetool if proto_dist is set.
+    # this is required here for the first time Riak is launched since there is
+    # no vm.args file yet. the relx script will set this by reading vm.args
+    # and looking for -proto_dist but Riak's vm.args is written after this check
+    # is made.
+    # if ERL_RPC is not relx_nodetool, then set it to relx_nodetool
+    # if [ "$ERL_RPC" != "relx_nodetool" ]; then
+    ERL_RPC=relx_nodetool
+    # fi
+
+    # we also need to make sure ERL_FLAGS contains -proto_dist inet_tls
+    # if it doesn't, then add it.
+    case "$ERL_FLAGS" in
+        *"-proto_dist inet_tls"*) ;;
+        *) if [ $PATCHED = "true" ]; then
+            ERL_FLAGS="$ERL_FLAGS -proto_dist inet_tls"
+        fi ;;
+    esac
+else
+    # if we had previously patched the scripts, we should un-patch them here.
+    # this is done by putting back the original script that was saved.
+    if [ -e $RIAK.unpatched ]; then
+        #echo "Un-patching riak script"
+        mv -f $RIAK.unpatched $RIAK
+    fi
+    if [ -e $INST_UP_ESCRIPT.unpatched ]; then
+        #echo "Un-patching install_upgrade.escript"
+        mv -f $INST_UP_ESCRIPT.unpatched $INST_UP_ESCRIPT
+    fi
+    if [ -e $OBSERVER_CLI_ESCRIPT.unpatched ]; then
+        #echo "Un-patching observer_cli escript"
+        mv -f $OBSERVER_CLI_ESCRIPT.unpatched $OBSERVER_CLI_ESCRIPT
+    fi
+fi

@@ -117,7 +117,10 @@ log_template() ->
 
 context() ->
     [
-        {logger_level , "info"}
+        {logger_level , "info"},
+        {dist_tls_enabled , "false"},
+        {dist_tls_certfile , "undefined"},
+        {dist_tls_cacertfile , "undefined"}
     ].
 
 predefined_schema() ->

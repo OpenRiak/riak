@@ -1,0 +1,62 @@
+# -------------------------------------------------------------------
+#
+# Copyright (c) 2026 Workday, Inc.
+#
+# This file is provided to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License.  You may obtain
+# a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# -------------------------------------------------------------------
+# Override file for different node configurations
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+version: '3.8'
+
+# This file can be used to override the default 5-node configuration
+# Examples:
+#
+# For 3-node cluster, comment out nodes 4 and 5:
+# services:
+#   riak-node-4:
+#     deploy:
+#       replicas: 0
+#   riak-node-5:
+#     deploy:
+#       replicas: 0
+#
+# For 8-node cluster, add nodes 6, 7, and 8:
+# services:
+#   riak-node-6:
+#     image: riak-${OS_TAG:-centos_stream9}-standalone-node:${TAG:-latest}
+#     container_name: riak-compose-node-6
+#     hostname: riak-node-6
+#     networks:
+#       riaknet:
+#         ipv4_address: 172.20.0.16
+#     ports:
+#       - "10068:10018"
+#       - "10067:10017"
+#       - "8886:8888"
+#     volumes:
+#       - ./run/compose-openssl-node:/var/run/riak
+#     environment:
+#       - RIAK_NODE_NAME=riak@172.20.0.16
+#       - ENABLE_SECURITY=${ENABLE_SECURITY:-false}
+#       - ENABLE_TLS=${ENABLE_TLS:-false}
+#     depends_on:
+#       - riak-node-1
+#     entrypoint: []
+#     command: |
+#       bash -c "
+#         /root/start_joining_node.sh 172.20.0.16 172.20.0.11 && /root/keep_running.sh
+#       "

@@ -107,11 +107,12 @@ relclean:
 ##  stagedevN - Make a stage dev build for node N (symlink libraries)
 ##  devrel - Make a dev build for 1..$DEVNODES
 ##  stagedevrel Make a stagedev build for 1..$DEVNODES
+##  docker - Make docker images - see rel/pkg/docker/README.md for more information
 ##
 ##  Example, make a 68 node devrel cluster
 ##    make stagedevrel DEVNODES=68
 
-.PHONY : stagedevrel devrel
+.PHONY : stagedevrel devrel docker
 DEVNODES ?= 8
 
 # 'seq' is not available on all *BSD, so using an alternate in awk
@@ -119,6 +120,16 @@ SEQ = $(shell awk 'BEGIN { for (i = 1; i < '$(DEVNODES)'; i++) printf("%i ", i);
 
 $(eval stagedevrel : $(foreach n,$(SEQ),stagedev$(n)))
 $(eval devrel : $(foreach n,$(SEQ),dev$(n)))
+
+docker:
+	make -C rel/pkg/docker build
+	@echo
+	@echo '===================================================================='
+	@echo 'Docker images built.'
+	@echo 'See rel/pkg/docker/README.md for more information on using them.'
+	@echo 'Use the Makefile under rel/pkg/docker to interact with the images.'
+	@echo '===================================================================='
+	@echo
 
 dev% : all
 	rel/gen_dev dev$* rel/vars/dev_vars.config.src rel/vars/$*_vars.config
