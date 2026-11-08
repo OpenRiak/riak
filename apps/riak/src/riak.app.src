@@ -1,6 +1,6 @@
 {application, riak,
  [{description, "The Riak Database"},
-   {vsn, "3.4.0"},
+   {vsn, "3.6"},
    {registered, []},
    {applications, [
        kernel,
